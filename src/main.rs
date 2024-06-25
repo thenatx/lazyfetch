@@ -1,3 +1,7 @@
+mod config;
+
 fn main() {
-    println!("Hello, world!");
+    let config_opts = config::get_config();
+    println!("Hello, your options are");
+    println!("{:#?}", config_opts)
 }
