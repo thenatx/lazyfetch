@@ -4,7 +4,6 @@
 	outputs = { self, crane, fenix, flake-utils, ... } @ inputs: 
 		flake-utils.lib.eachDefaultSystem (system: let 
 			rust-analyzer = fenix.packages.${system}.stable.rust-analyzer; 
-      pkgs = inputs.nixpkgs.legacyPackages.${system};
       toolchain = with fenix.packages.${system};
           combine [
             minimal.rustc
@@ -14,7 +13,7 @@
             targets.x86_64-pc-windows-gnu.latest.rust-std
           ];
 
-			craneLib = crane.lib.${system}.overrideToolchain toolchain;
+			craneLib = (crane.mkLib inputs.nixpkgs.legacyPackages.${system}).overrideToolchain toolchain;
 	
 			commonArgs = {
 				src = ./.;
@@ -42,7 +41,7 @@
 	});
 
 	inputs = {
-		nixpkgs.url = "github:NixOS/nixpkgs-unstable";
+		nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 		flake-utils.url = "github:numtide/flake-utils";
 		
     crane = {
