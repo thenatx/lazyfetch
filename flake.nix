@@ -30,8 +30,13 @@
 			};
 
 			checks = {
-				clippy = craneLib.cargoClippy commonArgs // { inherit cargoArtifacts; };
-				format = craneLib.cargoFmt commonArgs // { inherit cargoArtifacts; };
+				clippy = craneLib.cargoClippy commonArgs // {
+					cargoArtifacts = cargoArtifacts;
+				};
+
+				fmt = craneLib.cargoFmt commonArgs // {
+					cargoArtifacts = cargoArtifacts;
+				};
 			};
 
 			devShells = craneLib.devShell {
