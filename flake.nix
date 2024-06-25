@@ -37,7 +37,7 @@
 				fmt = craneLib.cargoFmt packageArgs;
 			};
 
-			devShells = craneLib.devShell {
+			devShells.default = craneLib.devShell {
 				checks = self.checks.${system};
 				packages = [ rust-analyzer ];
 			};
