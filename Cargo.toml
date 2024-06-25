@@ -1,6 +1,12 @@
 [package]
 name = "spryfetch"
-version = "0.1.0"
+version = "0.0.0"
 edition = "2021"
+description = "🚀 The faster neofetch-like for get information about your system, written in rust 🚀"
+edition = "2021"
+authors = ["Thenat"]
+homepage = "https://github.com/thenatx/spryfetch"
+repository = "https://github.com/thenatx/spryfetch"
 
 [dependencies]
+
