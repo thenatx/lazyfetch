@@ -1,5 +1,5 @@
 {
-	description = " ";
+	description = "Flake for spryfetch (Developing and building)";
 
 	outputs = { self, crane, fenix, flake-utils, ... } @ inputs: 
 		flake-utils.lib.eachDefaultSystem (system: let 
@@ -15,28 +15,26 @@
 
 			craneLib = (crane.mkLib inputs.nixpkgs.legacyPackages.${system}).overrideToolchain toolchain;
 	
+			cargoArtifacts = craneLib.buildDepsOnly commonArgs; 
 			commonArgs = {
 				src = ./.;
 				doCheck = false;
 			};
-	
-			cargoArtifacts = craneLib.buildDepsOnly commonArgs; 
+
+			packageArgs = commonArgs // {
+				cargoArtifacts = cargoArtifacts;
+			};
 		in {
 			packages = {
-				default = craneLib.buildPackage commonArgs;
-				windows = craneLib.buildPackage commonArgs // {
+				default = craneLib.buildPackage packageArgs;
+				windows = craneLib.buildPackage packageArgs // {
          CARGO_BUILD_TARGET = "x86_64-pc-windows-gnu";
 				};
 			};
 
 			checks = {
-				clippy = craneLib.cargoClippy commonArgs // {
-					cargoArtifacts = cargoArtifacts;
-				};
-
-				fmt = craneLib.cargoFmt commonArgs // {
-					cargoArtifacts = cargoArtifacts;
-				};
+				clippy = craneLib.cargoClippy packageArgs;
+				fmt = craneLib.cargoFmt packageArgs;
 			};
 
 			devShells = craneLib.devShell {
