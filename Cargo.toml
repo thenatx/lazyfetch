@@ -1,11 +1,12 @@
 [package]
-name = "spryfetch"
+name = "lazyfetch"
 version = "0.0.0"
 edition = "2021"
 description = "🚀 The faster neofetch-like for get information about your system, written in rust 🚀"
 authors = ["Thenat"]
-homepage = "https://github.com/thenatx/spryfetch"
-repository = "https://github.com/thenatx/spryfetch"
+homepage = "https://github.com/thenatx/lazyfetch"
+repository = "https://github.com/thenatx/lazyfetch"
 
 [dependencies]
+clap = { version = "4.5.7", features = ["derive"] }
 
