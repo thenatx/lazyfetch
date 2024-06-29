@@ -1,5 +1,5 @@
 {
-	description = "Flake for spryfetch (Developing and building)";
+	description = "Flake for lazyfetch (Developing and building)";
 
 	outputs = { self, crane, fenix, flake-utils, ... } @ inputs: 
 		flake-utils.lib.eachDefaultSystem (system: let 
