@@ -9,4 +9,6 @@ repository = "https://github.com/thenatx/lazyfetch"
 
 [dependencies]
 clap = { version = "4.5.7", features = ["derive"] }
+serde = { version = "1.0.203", features = ["derive"] }
+toml = "0.8.14"
 
