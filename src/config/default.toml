@@ -1,0 +1,83 @@
+[output]
+separator = " - "
+
+# Built-in variables
+# username: the name of the current username
+# host: the current host
+
+# Modules, also built-in variables but have options for configure de output:
+# os
+# memory
+# cpu
+# gpu
+# disk
+
+format = [
+	{ key = "", shell = true, content = "echo $(echo $HOST) '->' $(echo $USERNAME)" },
+	{ key = "${color:red}OS / ${color:blue}Operating system", content = "${os} of ${username}" },
+	{ key = "host", content = "${host}" },
+	{ key = "", content = "${style:bold}${color:red} ${color:blue} ${color:yellow} " }
+]
+
+# General options
+[general]
+
+# Can be a path or distro name
+ascii_art = "nixos_small"
+
+# When is true disble all colors and the ascii art not will be showed
+stdout = false
+
+[os] # Options for when you are using 'os' variable
+
+# Short the output name of the distro
+shorthand = false 
+
+# If have to show the os architecture in the operating system output
+show_arch = true
+
+[uptime] # Options for when you are using 'uptime' variable
+
+# Short the uptime output 
+shorthand = false
+
+[memory] # Options for when you are using 'mem' variable
+
+# If have to show the memory percent
+percent = false
+
+# The unit to use in the output
+unit = "mib"
+
+[cpu] # Options for when you are using 'cpu' variable
+
+# Short the speed output
+speed_shorthand = false
+
+# CPU speed type that is used as value
+# any filename in '/sys/devices/system/cpu/cpu0/cpufreq' can be used has value
+speed_type="bios_limit"
+
+# If have to show the brand
+show_brand = true
+
+# If show the cpu speed
+show_speed = true 
+
+[gpu] # Options for when you are using 'gpu' variable
+
+# If have to show the gpu brand name
+show_brand = true 
+
+[disk] # Options for when you are using 'disk' variable
+
+# Which disk to display.
+# Can be any /dev/sdX that you have or a directory
+show_disk="/"
+
+# Subtitle for show in the disk ("mount", "dir", "none")
+subtitle="none"
+
+# If have to show disk percent.
+show_percent = true
+
