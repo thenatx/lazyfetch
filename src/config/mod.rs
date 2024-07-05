@@ -49,10 +49,10 @@ pub struct Output {
 
 impl Default for Output {
     fn default() -> Self {
-        return Self {
+        Self {
             separator: Some(String::from("")),
             format: vec![],
-        };
+        }
     }
 }
 
@@ -144,7 +144,7 @@ impl Default for ConfigFile {
 }
 
 pub fn get_config() -> (ClapOpts, ConfigFile) {
-    static DEFAULT_CONFIG_FILE: &'static str = include_str!("./default.toml");
+    static DEFAULT_CONFIG_FILE: &str = include_str!("./default.toml");
     let args = ClapOpts::parse();
 
     let config_path = if let Some(path) = &args.config {
@@ -157,13 +157,18 @@ pub fn get_config() -> (ClapOpts, ConfigFile) {
             .join("lazyfetch");
 
         let _ = std::fs::create_dir_all(config_path.clone());
-        let _ = std::fs::write(config_path.clone().join("config.toml"), DEFAULT_CONFIG_FILE);
-        config_path.join("config.toml")
+        let config_file = config_path.join("config.toml");
+
+        if !config_file.exists() {
+            let _ = std::fs::write(config_file.clone(), DEFAULT_CONFIG_FILE);
+        }
+
+        config_file
     };
 
     if let Ok(config) = std::fs::read_to_string(config_path) {
-        return (args, toml::from_str::<ConfigFile>(&config).expect("some"));
+        (args, toml::from_str::<ConfigFile>(&config).unwrap())
     } else {
-        return (args, ConfigFile::default());
+        (args, ConfigFile::default())
     }
 }

@@ -6,7 +6,8 @@ separator = " - "
 # host: the current host
 
 # Modules, also built-in variables but have options for configure de output:
-# os
+# os: Print operating system information
+# uptime
 # memory
 # cpu
 # gpu
@@ -16,7 +17,7 @@ format = [
 	{ key = "", shell = true, content = "echo $(echo $HOST) '->' $(echo $USERNAME)" },
 	{ key = "${color:red}OS / ${color:blue}Operating system", content = "${os} of ${username}" },
 	{ key = "host", content = "${host}" },
-	{ key = "", content = "${style:bold}${color:red} ${color:blue} ${color:yellow} " }
+	{ key = "", content = "${color:red} ${color:blue} ${color:yellow} " }
 ]
 
 # General options
