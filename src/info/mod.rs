@@ -4,6 +4,7 @@ use regex::Regex;
 use starbase_shell::ShellType;
 use sysinfo::System;
 
+use std::fs::read_to_string;
 use std::process::{Command, Stdio};
 
 pub fn parse(config: Output) -> Vec<String> {
@@ -41,20 +42,16 @@ fn replace_vars(content: String) -> String {
         .map(|m| {
             let matched_str = m.get(0).unwrap().as_str();
 
+            // TODO: End the rest modules
             let replace_matches = match &matched_str[2..matched_str.len() - 1] {
-                "username" => std::env::var("USER").unwrap_or(String::from("failed to get the user")),
-                "host" => System::host_name().expect("Failed getting the host of your system"),
-                "os" => System::name().expect("Failed getting the os name of your system"),
-                "uptime" => System::uptime().to_string(),
-                "cpu" => { 
-                    let system = System::new_all();
-                    let used_memory = system.used_memory() / 10000;
-                    let free_memory = system.free_memory() / 10000;
-                    format!("{} / {}", used_memory, free_memory)
-                }
-                "gpu" => System::uptime().to_string(),
-                "disk" => System::uptime().to_string(),
-                "memory" => System::uptime().to_string(),
+                "username" => user::current(),
+                "host" => String::new(),
+                "os" => String::new(),
+                "uptime" => String::new(),
+                "cpu" => String::new(),
+                "gpu" => String::new(),
+                "disk" => String::new(),
+                "memory" => String::new(),
                 other => {
                     eprintln!("Error: the {} module not exists, check that is correcly written and exists", other);
                     std::process::exit(1)
@@ -92,3 +89,5 @@ fn exec_shell(input: &str) -> String {
 
     output_string
 }
+
+mod user;
