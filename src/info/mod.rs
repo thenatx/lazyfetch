@@ -1,70 +1,62 @@
-use crate::config::{Module, Output};
+use crate::config::ConfigFile;
 
-use regex::Regex;
+use srtemplate::SrTemplate;
 use starbase_shell::ShellType;
-use sysinfo::System;
-
-use std::fs::read_to_string;
 use std::process::{Command, Stdio};
 
-pub fn parse(config: Output) -> Vec<String> {
-    let separator = config.separator.unwrap_or_default();
+const DEFAULT_SEPARATOR: &str = ": ";
 
-    return config
+pub fn parse(config: &ConfigFile) -> Vec<String> {
+    let separator = config
+        .output
+        .separator
+        .clone()
+        .unwrap_or(DEFAULT_SEPARATOR.to_string());
+
+    config
+        .output
         .format
         .iter()
-        .map(|module| parse_content(module, &separator))
-        .collect();
-}
+        .map(|module| {
+            let mut content = module.content.clone();
+            let key = replace_vars(&module.key.clone());
 
-fn parse_content(module: &Module, separator: &str) -> String {
-    let mut content = module.content.clone();
-    let key = replace_vars(module.key.clone());
+            if module.shell.unwrap_or_default() {
+                content = exec_shell(&content);
+            } else {
+                content = replace_vars(&content);
+            }
 
-    if module.shell.unwrap_or_default() {
-        content = exec_shell(&content);
-    } else {
-        content = replace_vars(content);
-    }
+            if key.len() == 0 {
+                return format!("{}", content.to_string());
+            }
 
-    if key.len() == 0 {
-        return format!("{}", content.to_string());
-    }
-
-    format!("{}{}{}", key, separator, content)
-}
-
-fn replace_vars(content: String) -> String {
-    let mut new_content = content.clone();
-    let regex = Regex::new(r"\$\{(?:[^{}]|(?:\{[^{}]*\}))*\}").unwrap();
-    let _: Vec<_> = regex
-        .captures_iter(&content)
-        .map(|m| {
-            let matched_str = m.get(0).unwrap().as_str();
-
-            // TODO: End the rest modules
-            let replace_matches = match &matched_str[2..matched_str.len() - 1] {
-                "username" => user::current(),
-                "host" => String::new(),
-                "os" => String::new(),
-                "uptime" => String::new(),
-                "cpu" => String::new(),
-                "gpu" => String::new(),
-                "disk" => String::new(),
-                "memory" => String::new(),
-                other => {
-                    eprintln!("Error: the {} module not exists, check that is correcly written and exists", other);
-                    std::process::exit(1)
-                }
-            };
-
-            new_content = new_content.replace(
-                matched_str,
-                &replace_matches
-            );
+            format!("{}{}{}", key, separator, content)
         })
-        .collect();
-    new_content
+        .collect()
+}
+
+fn replace_vars(content: &str) -> String {
+    let mut context = SrTemplate::default();
+    context.set_delimiter("${", "}");
+    context.add_variable("username", &user::current());
+    context.add_variable("hostname", &host::host_name());
+    context.add_variable("host", &host::host());
+    context.add_variable(
+        "uptime",
+        &uptime::uptime(&crate::config::Uptime {
+            shorthand: Some(true),
+        }),
+    );
+    context.add_variable(
+        "os",
+        &system::os(crate::config::Os {
+            shorthand: Some(true),
+            show_arch: Some(false),
+        }),
+    );
+
+    context.render(content).unwrap()
 }
 
 fn exec_shell(input: &str) -> String {
@@ -90,4 +82,7 @@ fn exec_shell(input: &str) -> String {
     output_string
 }
 
+mod host;
+mod system;
+mod uptime;
 mod user;

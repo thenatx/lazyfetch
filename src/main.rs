@@ -1,8 +1,11 @@
 mod config;
+mod info;
 
 fn main() {
-    let config_opts = config::get_config();
+    let (_, config) = config::get_config();
+    let info = info::parse(&config);
 
-    println!("Hello, your options are:");
-    println!("{:#?}", config_opts)
+    for item in info {
+        println!("{}", item);
+    }
 }
