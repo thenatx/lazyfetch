@@ -50,7 +50,7 @@ pub struct Output {
 impl Default for Output {
     fn default() -> Self {
         Self {
-            separator: Some(String::from("")),
+            separator: Some(String::from(": ")),
             format: vec![],
         }
     }
@@ -69,10 +69,28 @@ pub struct General {
     pub stdout: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+impl Default for General {
+    fn default() -> Self {
+        Self {
+            ascii_art: Some("".to_string()),
+            stdout: Some(false),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Os {
     pub shorthand: Option<bool>,
     pub show_arch: Option<bool>,
+}
+
+impl Default for Os {
+    fn default() -> Self {
+        Self {
+            shorthand: Some(false),
+            show_arch: Some(true),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -80,10 +98,27 @@ pub struct Uptime {
     pub shorthand: Option<bool>,
 }
 
+impl Default for Uptime {
+    fn default() -> Self {
+        Self {
+            shorthand: Some(false),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Memory {
     pub percent: Option<bool>,
     pub unit: Option<String>,
+}
+
+impl Default for Memory {
+    fn default() -> Self {
+        Self {
+            percent: Some(true),
+            unit: Some("mib".to_string()),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -94,9 +129,28 @@ pub struct Cpu {
     pub show_speed: Option<bool>,
 }
 
+impl Default for Cpu {
+    fn default() -> Self {
+        Self {
+            speed_shorthand: Some(false),
+            speed_type: Some("bios_limit".to_string()),
+            show_brand: Some(true),
+            show_speed: Some(true),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Gpu {
     pub show_brand: Option<bool>,
+}
+
+impl Default for Gpu {
+    fn default() -> Self {
+        Self {
+            show_brand: Some(true),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -104,6 +158,16 @@ pub struct Disk {
     pub show_disk: Option<String>,
     pub subtitle: Option<String>,
     pub show_percent: Option<bool>,
+}
+
+impl Default for Disk {
+    fn default() -> Self {
+        Self {
+            show_disk: Some("/".to_string()),
+            subtitle: Some("none".to_string()),
+            show_percent: Some(true),
+        }
+    }
 }
 
 impl Default for ConfigFile {
@@ -114,31 +178,12 @@ impl Default for ConfigFile {
                 ascii_art: Some(String::from("")),
                 stdout: Some(false),
             }),
-            os: Some(Os {
-                shorthand: Some(false),
-                show_arch: Some(true),
-            }),
-            uptime: Some(Uptime {
-                shorthand: Some(false),
-            }),
-            memory: Some(Memory {
-                unit: Some(String::from("mib")),
-                percent: Some(true),
-            }),
-            cpu: Some(Cpu {
-                speed_type: Some(String::from("bios_limit")),
-                speed_shorthand: Some(false),
-                show_brand: Some(true),
-                show_speed: Some(true),
-            }),
-            gpu: Some(Gpu {
-                show_brand: Some(true),
-            }),
-            disk: Some(Disk {
-                subtitle: Some(String::from("/")),
-                show_disk: Some(String::from("/")),
-                show_percent: Some(true),
-            }),
+            os: Some(Os::default()),
+            uptime: Some(Uptime::default()),
+            memory: Some(Memory::default()),
+            cpu: Some(Cpu::default()),
+            gpu: Some(Gpu::default()),
+            disk: Some(Disk::default()),
         }
     }
 }
