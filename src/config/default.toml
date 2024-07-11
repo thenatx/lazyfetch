@@ -14,17 +14,22 @@ separator = " - "
 # disk
 
 format = [
-	{ key = "", shell = true, content = "echo $(echo $HOST) '->' $(echo $USERNAME)" },
-	{ key = "${color:red}OS / ${color:blue}Operating system", content = "${os} of ${username}" },
-	{ key = "host", content = "${host}" },
-	{ key = "", content = "${color:red} ${color:blue} ${color:yellow} " }
+	{ key = "", content = "---------- {username}@{hostname} ----------" }
+	{ key = "", shell = true, content = "echo Hello from my shell" },
+	{ key = "Host", content = "${host}" },
+	{ key = "Uptime", content = "${uptime}" },
+	{ key = "OS", content = "${os}" },
+	{ key = "CPU", content = "${cpu}" },
+	{ key = "GPU", content = "${gpu}" },
+	{ key = "Disk", content = "${disk}" },
+	{ key = "Memory", content = "${memory}" },
 ]
 
 # General options
 [general]
 
 # Can be a path or distro name
-ascii_art = "nixos_small"
+ascii_art = ""
 
 # When is true disble all colors and the ascii art not will be showed
 stdout = false
@@ -51,9 +56,6 @@ percent = false
 unit = "mib"
 
 [cpu] # Options for when you are using 'cpu' variable
-
-# Short the speed output
-speed_shorthand = false
 
 # CPU speed type that is used as value
 # any filename in '/sys/devices/system/cpu/cpu0/cpufreq' can be used has value

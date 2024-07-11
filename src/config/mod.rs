@@ -123,7 +123,6 @@ impl Default for Memory {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Cpu {
-    pub speed_shorthand: Option<bool>,
     pub speed_type: Option<String>,
     pub show_brand: Option<bool>,
     pub show_speed: Option<bool>,
@@ -132,7 +131,6 @@ pub struct Cpu {
 impl Default for Cpu {
     fn default() -> Self {
         Self {
-            speed_shorthand: Some(false),
             speed_type: Some("bios_limit".to_string()),
             show_brand: Some(true),
             show_speed: Some(true),
