@@ -116,7 +116,7 @@ impl Default for Memory {
     fn default() -> Self {
         Self {
             percent: Some(true),
-            unit: Some("mib".to_string()),
+            unit: Some("Mib".to_string()),
         }
     }
 }

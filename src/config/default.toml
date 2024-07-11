@@ -50,10 +50,11 @@ shorthand = false
 [memory] # Options for when you are using 'mem' variable
 
 # If have to show the memory percent
-percent = false
+percent = true 
 
-# The unit to use in the output
-unit = "mib"
+# The init that will be showed
+# One of 'Kib' 'Mib' or 'Gib'
+unit = "Mib"
 
 [cpu] # Options for when you are using 'cpu' variable
 
