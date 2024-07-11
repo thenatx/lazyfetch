@@ -44,17 +44,13 @@ fn replace_vars(content: &str) -> String {
     context.add_variable("host", &host::host());
     context.add_variable(
         "uptime",
-        &uptime::uptime(&crate::config::Uptime {
-            shorthand: Some(true),
-        }),
+        &uptime::uptime(&crate::config::Uptime::default()),
     );
     context.add_variable(
         "os",
-        &system::os(crate::config::Os {
-            shorthand: Some(true),
-            show_arch: Some(false),
-        }),
+        &system::os(crate::config::Os::default()),
     );
+    context.add_variable("cpu", &cpu::get_info(&crate::config::Cpu::default()));
 
     context.render(content).unwrap()
 }
@@ -82,6 +78,7 @@ fn exec_shell(input: &str) -> String {
     output_string
 }
 
+mod cpu;
 mod host;
 mod system;
 mod uptime;
