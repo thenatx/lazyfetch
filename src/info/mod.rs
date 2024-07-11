@@ -46,6 +46,10 @@ fn replace_vars(content: &str) -> String {
     context.add_variable("os", &system::os(crate::config::Os::default()));
     context.add_variable("cpu", &cpu::get_info(&crate::config::Cpu::default()));
     context.add_variable("gpu", &gpu::get_info(&crate::config::Gpu::default()));
+    context.add_variable(
+        "memory",
+        &memory::get_info(&crate::config::Memory::default()),
+    );
 
     context.render(content).unwrap()
 }
@@ -76,6 +80,7 @@ fn exec_shell(input: &str) -> String {
 mod cpu;
 mod gpu;
 mod host;
+mod memory;
 mod system;
 mod uptime;
 mod user;
