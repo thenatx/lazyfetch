@@ -7,36 +7,49 @@ use std::process::{Command, Stdio};
 const DEFAULT_SEPARATOR: &str = ": ";
 
 pub fn parse(config: &ConfigFile) -> Vec<String> {
-    let separator = config
-        .output
-        .separator
-        .clone()
-        .unwrap_or(DEFAULT_SEPARATOR.to_string());
+    let key_template = set_key_vars();
+    let content_template = set_content_vars();
+    let separator = match &config.output.separator {
+        Some(separator) => separator,
+        None => DEFAULT_SEPARATOR,
+    };
 
-    config
-        .output
-        .format
-        .iter()
-        .map(|module| {
-            let mut content = module.content.clone();
-            let key = replace_vars(&module.key.clone());
+    let mut to_return = Vec::new();
+    for module in config.output.format.iter() {
+        let mut content = module.content.clone();
+        let key = replace_vars(&key_template, &module.key);
 
-            if module.shell.unwrap_or_default() {
-                content = exec_shell(&content);
-            } else {
-                content = replace_vars(&content);
-            }
+        if module.shell.unwrap_or_default() {
+            content = exec_shell(&content);
+        } else {
+            content = replace_vars(&content_template, &content);
+        }
 
-            if key.len() == 0 {
-                return format!("{}", content.to_string());
-            }
+        if key.len() == 0 {
+            to_return.push(format!("{}", content));
+            continue;
+        }
 
-            format!("{}{}{}", key, separator, content)
-        })
-        .collect()
+        to_return.push(format!("{}{}{}", key, &separator, content));
+    }
+
+    to_return
 }
 
-fn replace_vars(content: &str) -> String {
+fn replace_vars(context: &SrTemplate, content: &str) -> String {
+    context.render(content).unwrap()
+}
+
+fn set_key_vars() -> SrTemplate<'static> {
+    let mut context = SrTemplate::default();
+    context.set_delimiter("${", "}");
+    context.add_variable("username", &user::current());
+    context.add_variable("hostname", &host::host_name());
+
+    context
+}
+
+fn set_content_vars() -> SrTemplate<'static> {
     let mut context = SrTemplate::default();
     context.set_delimiter("${", "}");
     context.add_variable("username", &user::current());
@@ -50,8 +63,9 @@ fn replace_vars(content: &str) -> String {
         "memory",
         &memory::get_info(&crate::config::Memory::default()),
     );
+    context.add_variable("disk", &disk::get_info(&crate::config::Disk::default()));
 
-    context.render(content).unwrap()
+    context
 }
 
 fn exec_shell(input: &str) -> String {
@@ -78,6 +92,7 @@ fn exec_shell(input: &str) -> String {
 }
 
 mod cpu;
+mod disk;
 mod gpu;
 mod host;
 mod memory;
