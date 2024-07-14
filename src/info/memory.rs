@@ -2,7 +2,7 @@ use crate::config::Memory;
 
 use sysinfo::System;
 
-const DEFAULT_UNIT: &'static str = "Mib";
+const DEFAULT_UNIT: &str = "Mib";
 
 pub fn get_info(config: &Memory) -> String {
     let unit = config.unit.clone().unwrap_or(DEFAULT_UNIT.to_string());

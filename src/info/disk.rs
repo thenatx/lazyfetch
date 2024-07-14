@@ -7,7 +7,7 @@ const BYTES_IN_GIGABYTES: u64 = 1000000000;
 pub fn get_info(config: &Disk) -> String {
     let mut show_disk: &str = &config.show_disk.clone().unwrap_or(DEFAULT_DISK.to_string());
 
-    if show_disk.len() <= 0 {
+    if show_disk.is_empty() {
         show_disk = DEFAULT_DISK;
     }
 
@@ -16,7 +16,7 @@ pub fn get_info(config: &Disk) -> String {
     let mut disk_info: DiskStruct = DiskStruct::new("".to_string(), 0, 0);
     for disk in &disks {
         let mount_point = disk.mount_point().to_str().unwrap();
-        if !(show_disk == mount_point) {
+        if show_disk != mount_point {
             break;
         }
 
@@ -27,7 +27,7 @@ pub fn get_info(config: &Disk) -> String {
         )
     }
 
-    if disk_info.mount_point.len() == 0 {
+    if disk_info.mount_point.is_empty() {
         eprintln!("Error: the mount point is empty");
         panic!()
     }
