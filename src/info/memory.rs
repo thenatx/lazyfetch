@@ -6,8 +6,8 @@ const DEFAULT_UNIT: &'static str = "Mib";
 
 pub fn get_info(config: &Memory) -> String {
     let unit = config.unit.clone().unwrap_or(DEFAULT_UNIT.to_string());
-    let mut sys = System::new_all();
-    sys.refresh_all();
+    let mut sys = System::new();
+    sys.refresh_memory();
 
     let total_memory = bytes_to(sys.total_memory(), &unit);
     let used_memory = bytes_to(sys.used_memory(), &unit);
