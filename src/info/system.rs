@@ -13,7 +13,15 @@ pub fn os(config: Os) -> String {
         if config.shorthand.unwrap_or_default() {
             format!("{}", distro_info.version.unwrap())
         } else {
-            format!("{} ({})", distro_info.build_id.unwrap(), codename)
+            let build_id = match distro_info.build_id {
+                Some(v) => v.to_string(),
+                None => {
+                    eprintln!("Your distro do not have a BUILD_ID in his os_release file");
+                    panic!()
+                }
+            };
+
+            format!("{} ({})", build_id, codename)
         }
     };
 
@@ -57,6 +65,7 @@ fn get_distro_info() -> LinuxOsRelease {
     info
 }
 
+#[derive(Default)]
 struct LinuxOsRelease {
     name: Option<String>,
     pretty_name: Option<String>,
@@ -64,17 +73,4 @@ struct LinuxOsRelease {
     build_id: Option<String>,
     codename: Option<String>,
     ansi_color: Option<String>,
-}
-
-impl Default for LinuxOsRelease {
-    fn default() -> Self {
-        Self {
-            name: None,
-            pretty_name: None,
-            version: None,
-            build_id: None,
-            codename: None,
-            ansi_color: None,
-        }
-    }
 }
