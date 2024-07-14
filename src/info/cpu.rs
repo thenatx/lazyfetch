@@ -11,7 +11,7 @@ pub fn get_info(config: &Cpu) -> String {
     sys.refresh_all();
 
     let cpu_brand = if config.show_brand.unwrap_or(true) {
-        &sys.cpus()[0].brand()
+        sys.cpus()[0].brand()
     } else {
         ""
     };
@@ -45,5 +45,5 @@ pub fn get_info(config: &Cpu) -> String {
         std::process::exit(1)
     }
 
-    format!("{}", cpu_brand)
+    format!("{}", cpu_brand.to_string())
 }
