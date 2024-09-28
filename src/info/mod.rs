@@ -25,18 +25,18 @@ pub fn parse(config: &ConfigFile) -> Vec<String> {
         }
 
         if module.key.len() < 1 {
-            to_return.push(format!("{}", content));
+            to_return.push(format!("{}\n", content));
             continue;
         }
 
         let key_template = set_key_vars();
         let key = replace_vars(&key_template, &module.key);
-        to_return.push(format!("{}{}{}", key, &separator, content));
+        to_return.push(format!("{}{}{}\n", key, &separator, content));
     }
 
     to_return
 }
-// Hello guys now i test the mayus shortcut of helix that is the BEST editor EVER
+
 fn replace_vars(context: &SrTemplate, content: &str) -> String {
     let mut replaced_vars = context.render(content).unwrap();
     replaced_vars.push_str(color::Reset.fg_str());

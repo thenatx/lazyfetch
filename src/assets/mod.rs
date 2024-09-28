@@ -11,6 +11,7 @@ enum Check {
     Contains,
 }
 
+static LINUX_ASCII: &'static str = include_str!("./linux");
 static DISTRO_LIST: &[Distro] = &[Distro {
     name: "nixos",
     ascii: include_str!("./nixos"),
@@ -33,5 +34,5 @@ pub fn get_ascii(os_name: String) -> &'static str {
         }
     }
 
-    return "";
+    return LINUX_ASCII;
 }

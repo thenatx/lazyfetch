@@ -2,6 +2,9 @@ mod assets;
 mod config;
 mod info;
 
+use srtemplate::SrTemplate;
+use termion::color;
+
 fn main() {
     let (cli, config) = config::get_config();
     let info = info::parse(&config);
@@ -15,8 +18,22 @@ fn main() {
         }
     };
 
-    print!("{:>10}", ascii);
+    print!("{:>10}", colorize_ascii(ascii));
     for item in info {
         print!("{}", item);
     }
+}
+
+fn colorize_ascii(ascii: &str) -> String {
+    let mut context = SrTemplate::default();
+    context.set_delimiter("${", "}");
+    context.add_variable("red", &color::Red.fg_str());
+    context.add_variable("blue", &color::Blue.fg_str());
+    context.add_variable("green", &color::Green.fg_str());
+    context.add_variable("yellow", &color::Yellow.fg_str());
+    context.add_variable("magenta", &color::Magenta.fg_str());
+    context.add_variable("white", &color::White.fg_str());
+    context.add_variable("black", &color::Black.fg_str());
+
+    context.render(ascii).unwrap()
 }
