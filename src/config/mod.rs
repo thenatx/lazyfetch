@@ -18,13 +18,6 @@ pub struct ClapOpts {
     #[arg(help = "Force the creation of the config file, overwrite the previous config")]
     pub gen_config_force: bool,
 
-    // Output options
-    #[arg(long, value_name = "KEY")]
-    #[arg(
-        help = "Disable an specified info line from be in the output\n for example 'lazyfetch --disable memory' disable de lines with memory key"
-    )]
-    pub disable: Option<String>,
-
     #[arg(long, help = "Set the distro for the ascii art")]
     pub distro: Option<String>,
 }
