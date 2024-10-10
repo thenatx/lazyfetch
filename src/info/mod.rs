@@ -14,24 +14,24 @@ pub fn parse(config: &ConfigFile) -> Vec<String> {
         None => DEFAULT_SEPARATOR,
     };
 
+    let key_template = set_key_vars();
+    let content_template = set_content_vars();
     for module in config.output.format.iter() {
         let mut content = module.content.clone();
 
         if module.shell.unwrap_or_default() {
             content = exec_shell(&content);
         } else {
-            let content_template = set_content_vars();
             content = replace_vars(&content_template, &content);
         }
 
         if module.key.len() < 1 {
-            to_return.push(format!("{}\n", content));
+            to_return.push(format!("{}", content));
             continue;
         }
 
-        let key_template = set_key_vars();
         let key = replace_vars(&key_template, &module.key);
-        to_return.push(format!("{}{}{}\n", key, &separator, content));
+        to_return.push(format!("{}{}{}", key, &separator, content));
     }
 
     to_return

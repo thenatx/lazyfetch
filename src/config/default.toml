@@ -5,7 +5,7 @@ separator = " - "
 # username: the name of the current username
 # host: the current host
 
-# Modules, also built-in variables but have options for configure de output:
+# Modules, also built-in variables but have options for configure the output:
 # os: Print operating system information
 # uptime
 # memory
@@ -28,10 +28,10 @@ format = [
 # General options
 [general]
 
-# Can be a path or distro name
+# Can be a path for a custom ascii or a distro name
 ascii_art = ""
 
-# When is true disble all colors and the ascii art not will be showed
+# When is true, disable all colors
 stdout = false
 
 [os] # Options for when you are using 'os' variable
