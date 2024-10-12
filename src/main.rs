@@ -9,7 +9,6 @@ fn main() {
 
     let ascii_lines = if cli.distro.is_some() {
         let ascii = assets::get_ascii(cli.distro.unwrap().to_lowercase());
-
         utils::vectorize_string_file(ascii)
     } else {
         let ascii = match sysinfo::System::name() {

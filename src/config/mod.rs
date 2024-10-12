@@ -184,19 +184,17 @@ pub fn get_config() -> (ClapOpts, ConfigFile) {
     let args = ClapOpts::parse();
 
     let config_path = if let Some(path) = &args.config {
-        path.clone()
+        path.to_owned()
     } else {
-        let config_path = directories::BaseDirs::new()
+        let config_dir = directories::BaseDirs::new()
             .unwrap()
             .config_dir()
-            .to_owned()
             .join("lazyfetch");
 
-        let _ = std::fs::create_dir_all(config_path.clone());
-        let config_file = config_path.join("config.toml");
-
-        if !config_file.exists() {
-            let _ = std::fs::write(config_file.clone(), DEFAULT_CONFIG_FILE);
+        let config_file = config_dir.join("config.toml");
+        if !config_file.exists() || !config_dir.exists() {
+            let _ = std::fs::create_dir_all(&config_dir);
+            let _ = std::fs::write(&config_file, DEFAULT_CONFIG_FILE);
         }
 
         config_file
