@@ -86,7 +86,7 @@ impl Default for Os {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug)]
 pub struct Uptime {
     pub shorthand: Option<bool>,
 }

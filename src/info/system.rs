@@ -1,7 +1,7 @@
 use crate::config::Os;
 use sysinfo::System;
 
-pub fn os(config: Os) -> String {
+pub fn os(config: &Os) -> String {
     let name = System::name().unwrap();
     let version = if !cfg!(target_os = "linux") {
         System::os_version().unwrap()

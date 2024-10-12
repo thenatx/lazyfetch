@@ -13,7 +13,8 @@
             targets.x86_64-pc-windows-gnu.latest.rust-std
           ];
 
-			craneLib = (crane.mkLib inputs.nixpkgs.legacyPackages.${system}).overrideToolchain toolchain;
+			pkgs = inputs.nixpkgs.legacyPackages.${system};
+			craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
 	
 			cargoArtifacts = craneLib.buildDepsOnly commonArgs; 
 			commonArgs = {
@@ -26,7 +27,10 @@
 			};
 		in {
 			packages = {
-				default = craneLib.buildPackage packageArgs;
+				default = craneLib.buildPackage packageArgs // {
+					CARGO_LINKER = "clang";
+    			CARGO_RUSTFLAGS = "-Clink-arg=-fuse-ld=${pkgs.mold}/bin/mold";
+				};
 				windows = craneLib.buildPackage packageArgs // {
          CARGO_BUILD_TARGET = "x86_64-pc-windows-gnu";
 				};

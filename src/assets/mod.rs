@@ -4,11 +4,10 @@ struct Distro {
     check_mode: Check,
 }
 
-// Match = The os distro name is equal to the their ascii name
-// Contains = The os distro name contais their ascii name
+// Match = The operating system name is equal to the their ascii name
+// Contains = The operating system name contais their ascii name
 enum Check {
-    Match,
-    Contains,
+    Match, // Contains,
 }
 
 static LINUX_ASCII: &'static str = include_str!("./linux");
@@ -25,12 +24,11 @@ pub fn get_ascii(os_name: String) -> &'static str {
                 if distro.name == os_name {
                     return distro.ascii;
                 }
-            }
-            Check::Contains => {
-                if distro.name.contains(&os_name) {
-                    return distro.ascii;
-                }
-            }
+            } // Check::Contains => {
+              //     if distro.name.contains(&os_name) {
+              //         return distro.ascii;
+              //     }
+              // }
         }
     }
 

@@ -3,6 +3,9 @@ use crate::config::Memory;
 use sysinfo::System;
 
 const DEFAULT_UNIT: &str = "Mib";
+const BYTES_IN_KILOBYTES: u64 = 1024;
+const BYTES_IN_MEGABYTES: u64 = 1000000;
+const BYTES_IN_GIGABYTES: u64 = 1000000000;
 
 pub fn get_info(config: &Memory) -> String {
     let unit = config.unit.clone().unwrap_or(DEFAULT_UNIT.to_string());
@@ -24,16 +27,13 @@ pub fn get_info(config: &Memory) -> String {
 }
 
 fn bytes_to(bytes: u64, format: &str) -> u64 {
-    const BYTES_IN_KILOBYTES: u64 = 1024;
-    const BYTES_IN_MEGABYTES: u64 = 1000000;
-    const BYTES_IN_GIGABYTES: u64 = 1000000000;
     match format {
         "Kib" => bytes / BYTES_IN_KILOBYTES,
         "Mib" => bytes / BYTES_IN_MEGABYTES,
         "Gib" => bytes / BYTES_IN_GIGABYTES,
         bad_format => {
             eprintln!(
-                "Error: {} is not a valid format, use one of 'Kib', 'Mib' or 'Gib' instead",
+                "Error: {} is not a valid format for show memory, use one of 'Kib', 'Mib' or 'Gib' instead",
                 bad_format
             );
             panic!()

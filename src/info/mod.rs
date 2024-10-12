@@ -1,5 +1,6 @@
 use crate::config::ConfigFile;
 
+use regex::Regex;
 use srtemplate::SrTemplate;
 use starbase_shell::ShellType;
 use std::process::{Command, Stdio};
@@ -8,7 +9,6 @@ use termion::color;
 const DEFAULT_SEPARATOR: &str = ": ";
 
 pub fn parse(config: &ConfigFile) -> Vec<String> {
-    let mut to_return = Vec::new();
     let separator = match &config.output.separator {
         Some(separator) => separator,
         None => DEFAULT_SEPARATOR,
@@ -16,32 +16,40 @@ pub fn parse(config: &ConfigFile) -> Vec<String> {
 
     let key_template = set_key_vars();
     let content_template = set_content_vars();
-    for module in config.output.format.iter() {
-        let mut content = module.content.clone();
+    config
+        .output
+        .format
+        .iter()
+        .map(|module| {
+            if module.content.len() < 1 && module.key.len() < 1 {
+                panic!("Error: empty module");
+            }
 
-        if module.shell.unwrap_or_default() {
-            content = exec_shell(&content);
-        } else {
-            content = replace_vars(&content_template, &content);
-        }
+            let content;
+            if module.shell.unwrap_or_default() {
+                content = exec_shell(&module.content);
+            } else {
+                content = replace_vars(&content_template, &module.content);
+            }
 
-        if module.key.len() < 1 {
-            to_return.push(format!("{}", content));
-            continue;
-        }
+            if module.key.len() < 1 {
+                return format!("{}", content);
+            }
 
-        let key = replace_vars(&key_template, &module.key);
-        to_return.push(format!("{}{}{}", key, &separator, content));
-    }
+            let key = replace_vars(&key_template, &module.key);
+            format!("{}{}{}", key, &separator, content)
+        })
+        .collect()
+}
 
-    to_return
+fn regex_parse(content: String) {
+    let regex = Regex::new(r"\n");
+
+    println!("{}", regex.captures(content));
 }
 
 fn replace_vars(context: &SrTemplate, content: &str) -> String {
-    let mut replaced_vars = context.render(content).unwrap();
-    replaced_vars.push_str(color::Reset.fg_str());
-
-    replaced_vars
+    context.render(content).unwrap() + color::Reset.fg_str()
 }
 
 fn set_key_vars() -> SrTemplate<'static> {
@@ -73,7 +81,7 @@ fn set_content_vars() -> SrTemplate<'static> {
     context.add_variable("hostname", &host::host_name());
     context.add_variable("host", &host::host());
     context.add_variable("uptime", &uptime::uptime(&crate::config::Uptime::default()));
-    context.add_variable("os", &system::os(crate::config::Os::default()));
+    context.add_variable("os", &system::os(&crate::config::Os::default()));
     context.add_variable("cpu", &cpu::get_info(&crate::config::Cpu::default()));
     context.add_variable("gpu", &gpu::get_info(&crate::config::Gpu::default()));
     context.add_variable("disk", &disk::get_info(&crate::config::Disk::default()));
@@ -98,7 +106,7 @@ fn exec_shell(input: &str) -> String {
         .spawn()
         .unwrap()
         .wait_with_output()
-        .expect("Failed to wait the command");
+        .expect("Failed to run the shell");
 
     let mut output_string =
         String::from_utf8(out.stdout).expect("Error parsing the output to string");

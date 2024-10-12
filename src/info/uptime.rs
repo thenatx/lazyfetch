@@ -1,6 +1,5 @@
-use sysinfo::System;
-
 use crate::config::Uptime;
+use sysinfo::System;
 
 const SECONDS_IN_HOURS: f64 = 3600.0;
 const SECONDS_IN_MINUTES: f64 = 60.0;
