@@ -10,10 +10,10 @@ enum Check {
     Match, // Contains,
 }
 
-static LINUX_ASCII: &'static str = include_str!("./linux");
+static LINUX_ASCII: &'static str = include_str!("./ascii/linux");
 static DISTRO_LIST: &[Distro] = &[Distro {
     name: "nixos",
-    ascii: include_str!("./nixos"),
+    ascii: include_str!("./ascii/nixos"),
     check_mode: Check::Match,
 }];
 

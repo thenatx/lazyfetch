@@ -1,6 +1,5 @@
 use crate::config::ConfigFile;
 
-use regex::Regex;
 use srtemplate::SrTemplate;
 use starbase_shell::ShellType;
 use std::process::{Command, Stdio};
@@ -40,12 +39,6 @@ pub fn parse(config: &ConfigFile) -> Vec<String> {
             format!("{}{}{}", key, &separator, content)
         })
         .collect()
-}
-
-fn regex_parse(content: String) {
-    let regex = Regex::new(r"\n");
-
-    println!("{}", regex.captures(content));
 }
 
 fn replace_vars(context: &SrTemplate, content: &str) -> String {
