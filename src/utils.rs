@@ -17,13 +17,10 @@ pub fn make_columns(left: Vec<String>, right: Vec<String>) -> String {
     for i in 0..total_lines {
         let left_line = left.get(i).unwrap_or(&space);
         let right_line = right.get(i).unwrap_or(&space);
-        let clean_left_line = UnicodeWidthStr::width(strip_ansi_codes(left_line).as_str());
-        let columned_line = format!(
-            "{}{}{}\n",
-            left_line,
-            " ".repeat(padding - clean_left_line),
-            right_line
-        );
+        let padding_spaces =
+            " ".repeat(padding - UnicodeWidthStr::width(strip_ansi_codes(left_line).as_str()));
+
+        let columned_line = format!("{}{}{}\n", left_line, padding_spaces, right_line);
         output.push_str(&columned_line)
     }
 
@@ -31,14 +28,11 @@ pub fn make_columns(left: Vec<String>, right: Vec<String>) -> String {
 }
 
 pub fn vectorize_string_file(text: &str) -> Vec<String> {
-    let mut text_vector: Vec<String> = Vec::new();
-    for item in text.split('\n') {
-        text_vector.push(String::from(item));
-    }
-
-    text_vector
+    text.split('\n')
+        .into_iter()
+        .map(|item| item.to_string())
+        .collect()
 }
-
 fn strip_ansi_codes(text: &str) -> String {
     let re = Regex::new(r"\x1b[\[\(][0-9;]*[A-Za-z~]").unwrap();
     re.replace_all(text, "").to_string()
