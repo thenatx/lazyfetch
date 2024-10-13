@@ -5,7 +5,7 @@ use starbase_shell::ShellType;
 use std::process::{Command, Stdio};
 use termion::color;
 
-const DEFAULT_SEPARATOR: &str = ": ";
+const DEFAULT_SEPARATOR: &'static str = ": ";
 
 pub fn parse(config: &ConfigFile) -> Vec<String> {
     let separator = match &config.output.separator {
@@ -20,8 +20,8 @@ pub fn parse(config: &ConfigFile) -> Vec<String> {
         .format
         .iter()
         .map(|module| {
-            if module.content.len() < 1 && module.key.len() < 1 {
-                panic!("Error: empty module");
+            if module.content.len() < 1 {
+                return format!("{}", replace_vars(&key_template, &module.key));
             }
 
             let content;
