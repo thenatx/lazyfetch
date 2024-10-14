@@ -16,7 +16,7 @@ pub fn get_info(config: &Gpu) -> String {
             Ok(lscpi) => match String::from_utf8(lscpi.stdout) {
                 Ok(output) => output,
                 Err(err) => {
-                    eprintln!("The output of the command contained invalid UTF8.\n{}", err);
+                    eprintln!("The output of the command contains invalid UTF8.\n{}", err);
                     panic!();
                 }
             },
@@ -34,16 +34,13 @@ pub fn get_info(config: &Gpu) -> String {
                 .unwrap();
         let lspci_lines = lspci.split("\n").collect::<Vec<&str>>();
         for line in lspci_lines.iter() {
-            let captures = regex.captures(&line);
-            match captures {
-                Some(captures) => {
-                    to_return.push((
-                        String::from(captures.get(1).unwrap().as_str()),
-                        String::from(captures.get(2).unwrap().as_str()),
-                        String::from(captures.get(3).unwrap().as_str()),
-                    ));
-                }
-                None => (),
+            let captures = regex.captures(line);
+            if let Some(captures) = captures {
+                to_return.push((
+                    String::from(captures.get(1).unwrap().as_str()),
+                    String::from(captures.get(2).unwrap().as_str()),
+                    String::from(captures.get(3).unwrap().as_str()),
+                ));
             }
         }
 
@@ -51,11 +48,11 @@ pub fn get_info(config: &Gpu) -> String {
     };
 
     // Fix Intel integrated graphics crap
-    if gpus.len() >= 2 {
-        if gpus[0].1.to_lowercase().contains("intel") && gpus[1].1.to_lowercase().contains("intel")
-        {
-            gpus.pop();
-        }
+    if gpus.len() >= 2
+        && gpus[0].1.to_lowercase().contains("intel")
+        && gpus[1].1.to_lowercase().contains("intel")
+    {
+        gpus.pop();
     }
 
     let mut to_return = GpuStruct::new(String::new(), String::new());
@@ -95,7 +92,7 @@ pub fn get_info(config: &Gpu) -> String {
                 String::from(regex.replace(&brand, "Intel HD Graphics"))
             };
             brand = String::from(brand.trim());
-            if brand == "" {
+            if brand.is_empty() {
                 brand = String::from("Intel HD Graphics");
             }
             to_return = GpuStruct::new(gpu.2.clone(), brand);
@@ -103,7 +100,7 @@ pub fn get_info(config: &Gpu) -> String {
     }
 
     if !config.show_brand.unwrap_or(false) {
-        return format!("{}", to_return.name);
+        return to_return.name;
     }
 
     format!("{} {}", to_return.brand, to_return.name)

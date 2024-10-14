@@ -22,7 +22,7 @@ pub struct ClapOpts {
     pub distro: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ConfigFile {
     pub output: Output,
     pub general: Option<General>,
@@ -34,7 +34,7 @@ pub struct ConfigFile {
     pub disk: Option<Disk>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Output {
     pub separator: Option<String>,
     pub format: Vec<Module>,
@@ -49,14 +49,14 @@ impl Default for Output {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Module {
     pub key: String,
     pub shell: Option<bool>,
     pub content: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct General {
     pub ascii_art: Option<String>,
     pub stdout: Option<bool>,
@@ -71,7 +71,7 @@ impl Default for General {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug)]
 pub struct Os {
     pub shorthand: Option<bool>,
     pub show_arch: Option<bool>,
@@ -99,7 +99,7 @@ impl Default for Uptime {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Memory {
     pub percent: Option<bool>,
     pub unit: Option<String>,
@@ -114,7 +114,7 @@ impl Default for Memory {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Cpu {
     pub speed_type: Option<String>,
     pub show_brand: Option<bool>,
@@ -131,7 +131,7 @@ impl Default for Cpu {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Gpu {
     pub show_brand: Option<bool>,
 }
@@ -144,7 +144,7 @@ impl Default for Gpu {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Disk {
     pub show_disk: Option<String>,
     pub subtitle: Option<String>,

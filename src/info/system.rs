@@ -7,11 +7,11 @@ pub fn os(config: &Os) -> String {
         System::os_version().unwrap()
     } else {
         let distro_info = get_distro_info();
-        let mut codename = distro_info.codename.unwrap_or(String::new());
+        let mut codename = distro_info.codename.unwrap_or_default();
         codename = codename.replace(&codename[0..1], &codename[0..1].to_uppercase());
 
         if config.shorthand.unwrap_or_default() {
-            format!("{}", distro_info.version.unwrap())
+            distro_info.version.unwrap()
         } else {
             let build_id = match distro_info.build_id {
                 Some(v) => v.to_string(),

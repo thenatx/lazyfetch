@@ -5,7 +5,7 @@ mod utils;
 
 fn main() {
     let (cli, config) = config::get_config();
-    let system_info = info::parse(&config);
+    let system_info = info::get_info_lines(config);
 
     let ascii_lines = if cli.distro.is_some() {
         let ascii = assets::get_ascii(cli.distro.unwrap().to_lowercase());

@@ -45,5 +45,5 @@ pub fn get_info(config: &Cpu) -> String {
         std::process::exit(1)
     }
 
-    format!("{}", cpu_brand.to_string())
+    cpu_brand.to_string()
 }

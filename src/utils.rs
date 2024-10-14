@@ -1,6 +1,5 @@
 use regex::Regex;
-use srtemplate::SrTemplate;
-use termion::color;
+// use termion::color;
 use unicode_width::UnicodeWidthStr;
 
 pub fn make_columns(left: Vec<String>, right: Vec<String>) -> String {
@@ -28,10 +27,7 @@ pub fn make_columns(left: Vec<String>, right: Vec<String>) -> String {
 }
 
 pub fn vectorize_string_file(text: &str) -> Vec<String> {
-    text.split('\n')
-        .into_iter()
-        .map(|item| item.to_string())
-        .collect()
+    text.split('\n').map(|item| item.to_string()).collect()
 }
 fn strip_ansi_codes(text: &str) -> String {
     let re = Regex::new(r"\x1b[\[\(][0-9;]*[A-Za-z~]").unwrap();
@@ -39,17 +35,16 @@ fn strip_ansi_codes(text: &str) -> String {
 }
 
 pub fn parse_color(text: &str) -> String {
-    let mut context = SrTemplate::default();
-    context.set_delimiter("${", "}");
-    context.add_variable("1", &color::Red.fg_str());
-    context.add_variable("2", &color::Blue.fg_str());
-    context.add_variable("3", &color::Green.fg_str());
-    context.add_variable("4", &color::Yellow.fg_str());
-    context.add_variable("5", &color::Magenta.fg_str());
-    context.add_variable("6", &color::White.fg_str());
-    context.add_variable("0", &color::Black.fg_str());
+    // let mut context = SrTemplate::default();
+    // context.set_delimiter("${", "}");
+    // context.add_variable("1", &color::Red.fg_str());
+    // context.add_variable("2", &color::Blue.fg_str());
+    // context.add_variable("3", &color::Green.fg_str());
+    // context.add_variable("4", &color::Yellow.fg_str());
+    // context.add_variable("5", &color::Magenta.fg_str());
+    // context.add_variable("6", &color::White.fg_str());
+    // context.add_variable("0", &color::Black.fg_str());
 
-    let colored_text = context.render(text).unwrap() + &color::Reset.fg_str();
-
-    colored_text
+    // context.render(text).unwrap() + color::Reset.fg_str()
+    text.to_string()
 }

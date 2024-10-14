@@ -1,32 +1,34 @@
 [output]
 separator = " - "
 
-# Built-in variables
+## Built-in variables
 # username: the name of the current username
 # host: the current host
 
 # Modules, also built-in variables but have options for configure the output:
-# os: Print operating system information
-# uptime
-# memory
-# cpu
-# gpu
-# disk
+# - os
+# - memory
+# - cpu
+# - gpu
+# - disk
+
+## Shell
+# You can set ``shell = true`` and the content will be interpreted like a command written in your shell
 
 format = [
-	{ key = "", content = "---------- {username}@{hostname} ----------" }
-	{ key = "", shell = true, content = "echo Hello from my shell" },
-	{ key = "Host", content = "${host}" },
-	{ key = "Uptime", content = "${uptime}" },
-	{ key = "OS", content = "${os}" },
-	{ key = "CPU", content = "${cpu}" },
-	{ key = "GPU", content = "${gpu}" },
-	{ key = "Disk", content = "${disk}" },
-	{ key = "Memory", content = "${memory}" },
+  { key = "", content = "---------- {username}@{hostname} ----------" },
+  { key = "", shell = true, content = "echo Hello from my shell" },
+  { key = "Host", content = "${host}" },
+  { key = "Uptime", content = "${uptime}" },
+  { key = "OS", content = "${os}" },
+  { key = "CPU", content = "${cpu}" },
+  { key = "GPU", content = "${gpu}" },
+  { key = "Disk", content = "${disk}" },
+  { key = "Memory", content = "${memory}" },
 ]
 
-# General options
-[general]
+
+[general] # General options
 
 # Can be a path for a custom ascii or a distro name
 ascii_art = ""
@@ -37,20 +39,20 @@ stdout = false
 [os] # Options for when you are using 'os' variable
 
 # Short the output name of the distro
-shorthand = false 
+shorthand = false
 
 # If have to show the os architecture in the operating system output
 show_arch = true
 
 [uptime] # Options for when you are using 'uptime' variable
 
-# Short the uptime output 
+# Short the uptime output
 shorthand = false
 
 [memory] # Options for when you are using 'mem' variable
 
 # If have to show the memory percent
-percent = true 
+percent = true
 
 # The init that will be showed
 # One of 'Kib' 'Mib' or 'Gib'
@@ -60,28 +62,27 @@ unit = "Mib"
 
 # CPU speed type that is used as value
 # any filename in '/sys/devices/system/cpu/cpu0/cpufreq' can be used has value
-speed_type="bios_limit"
+speed_type = "bios_limit"
 
 # If have to show the brand
 show_brand = true
 
 # If show the cpu speed
-show_speed = true 
+show_speed = true
 
 [gpu] # Options for when you are using 'gpu' variable
 
 # If have to show the gpu brand name
-show_brand = true 
+show_brand = true
 
 [disk] # Options for when you are using 'disk' variable
 
 # Which disk to display.
 # Can be any /dev/sdX that you have or a directory
-show_disk="/"
+show_disk = "/"
 
 # Subtitle for show in the disk ("mount", "dir", "none")
-subtitle="none"
+subtitle = "none"
 
 # If have to show disk percent.
 show_percent = true
-
