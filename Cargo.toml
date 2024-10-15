@@ -2,7 +2,7 @@
 name = "lazyfetch"
 version = "0.0.0"
 edition = "2021"
-description = "🚀 The faster neofetch-like for get information about your system, written in rust 🚀"
+description = "A neofetch-like for get information about your system, written in rust"
 authors = ["Thenat"]
 homepage = "https://github.com/thenatx/lazyfetch"
 repository = "https://github.com/thenatx/lazyfetch"
