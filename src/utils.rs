@@ -1,5 +1,6 @@
 use regex::Regex;
-// use termion::color;
+use std::collections::HashMap;
+use termion::color;
 use unicode_width::UnicodeWidthStr;
 
 pub fn make_columns(left: Vec<String>, right: Vec<String>) -> String {
@@ -34,17 +35,29 @@ fn strip_ansi_codes(text: &str) -> String {
     re.replace_all(text, "").to_string()
 }
 
-pub fn parse_color(text: &str) -> String {
-    // let mut context = SrTemplate::default();
-    // context.set_delimiter("${", "}");
-    // context.add_variable("1", &color::Red.fg_str());
-    // context.add_variable("2", &color::Blue.fg_str());
-    // context.add_variable("3", &color::Green.fg_str());
-    // context.add_variable("4", &color::Yellow.fg_str());
-    // context.add_variable("5", &color::Magenta.fg_str());
-    // context.add_variable("6", &color::White.fg_str());
-    // context.add_variable("0", &color::Black.fg_str());
+pub fn parse_color(input: &str) -> String {
+    let re = Regex::new(r"\$([0-9_]+)").unwrap();
+    let mut vars: HashMap<&str, &str> = HashMap::new();
+    vars.insert("1", color::Red.fg_str());
+    vars.insert("2", color::Blue.fg_str());
+    vars.insert("3", color::Green.fg_str());
+    vars.insert("4", color::Cyan.fg_str());
+    vars.insert("5", color::Magenta.fg_str());
+    vars.insert("6", color::Black.fg_str());
+    vars.insert("7", color::White.fg_str());
 
-    // context.render(text).unwrap() + color::Reset.fg_str()
-    text.to_string()
+    let output = re.replace_all(input, |c: &regex::Captures| {
+        let var = &c[1];
+        match vars.get(var) {
+            Some(v) => v,
+            None => "$undefined_var",
+        }
+    });
+
+    if output.contains("$undefined_var") {
+        eprintln!("{}", input);
+        std::process::exit(1)
+    }
+
+    output.to_string() + color::Reset.fg_str()
 }
