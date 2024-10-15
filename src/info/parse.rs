@@ -1,6 +1,7 @@
 use super::ModuleFn;
 use regex::Regex;
 use std::collections::HashMap;
+use termion::color;
 
 #[derive(Debug)]
 pub enum ParseError {
@@ -11,7 +12,7 @@ pub fn parse_module<'a>(
     input: &str,
     vars: &HashMap<&'a str, ModuleFn>,
 ) -> Result<String, ParseError> {
-    let regex = Regex::new(r"\$\{([a-zA-Z0-9_]+)\}").unwrap();
+    let regex = Regex::new(r"\$\{([a-zA-Z0-9_]+(?::[a-zA-Z0-9_]+)?)\}").unwrap();
 
     let output = regex
         .replace_all(input, |cap: &regex::Captures| {
@@ -24,11 +25,11 @@ pub fn parse_module<'a>(
         .to_string();
 
     if output.contains("${undefined_var}") {
-        let error_message = format!("Undefined var {}", input);
+        let error_message = format!("Undefined var at: {}", input);
         return Err(ParseError::UndefinedVar(error_message));
     };
 
-    Ok(output)
+    Ok(output + color::Reset.fg_str())
 }
 
 pub fn handle_parse_err(result: Result<String, ParseError>) -> String {

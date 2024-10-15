@@ -18,7 +18,6 @@ pub fn init_vars<'a>() -> HashMap<&'a str, ModuleFn> {
     insert_var!(vars, "username", user::current());
     insert_var!(vars, "hostname", host::host_name());
     insert_var!(vars, "color:red", color::Red.fg_str());
-    insert_var!(vars, "color:red", color::Red.fg_str());
     insert_var!(vars, "color:blue", color::Blue.fg_str());
     insert_var!(vars, "color:green", color::Green.fg_str());
     insert_var!(vars, "color:yellow", color::Yellow.fg_str());
