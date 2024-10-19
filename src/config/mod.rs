@@ -1,26 +1,7 @@
 use clap::Parser;
+use cli::ClapOpts;
 use serde::{Deserialize, Serialize};
-
 use std::path::PathBuf;
-
-#[derive(Parser, Debug)]
-pub struct ClapOpts {
-    // Config options
-    #[arg(long, value_name = "PATH")]
-    #[arg(help = "Path to the config file")]
-    pub config: Option<PathBuf>,
-
-    #[arg(long, exclusive = true)]
-    #[arg(help = "If have to generate the default config, fails if you already have one")]
-    pub gen_config: bool,
-
-    #[arg(long, exclusive = true)]
-    #[arg(help = "Force the creation of the config file, overwrite the previous config")]
-    pub gen_config_force: bool,
-
-    #[arg(long, help = "Set the distro for the ascii art")]
-    pub distro: Option<String>,
-}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ConfigFile {
@@ -179,30 +160,44 @@ impl Default for ConfigFile {
     }
 }
 
-pub fn get_config() -> (ClapOpts, ConfigFile) {
-    static DEFAULT_CONFIG_FILE: &str = include_str!("./default.toml");
-    let args = ClapOpts::parse();
-
-    let config_path = if let Some(path) = &args.config {
-        path.to_owned()
-    } else {
-        let config_dir = directories::BaseDirs::new()
-            .unwrap()
-            .config_dir()
-            .join("lazyfetch");
-
-        let config_file = config_dir.join("config.toml");
-        if !config_file.exists() || !config_dir.exists() {
-            let _ = std::fs::create_dir_all(&config_dir);
-            let _ = std::fs::write(&config_file, DEFAULT_CONFIG_FILE);
+impl ConfigFile {
+    fn get_config_file(file_path: PathBuf) -> Result<Self, std::io::Error> {
+        if !file_path.exists() {
+            let _ = std::fs::create_dir_all(&file_path);
+            let _ = std::fs::write(&file_path, DEFAULT_CONFIG_FILE);
         }
 
-        config_file
+        let content = std::fs::read_to_string(file_path)?;
+        Ok(toml::from_str(&content).unwrap())
+    }
+}
+
+static DEFAULT_CONFIG_FILE: &str = include_str!("./default.toml");
+pub fn get_config() -> (ClapOpts, ConfigFile) {
+    let args = ClapOpts::parse();
+    let config_path = directories::BaseDirs::new()
+        .unwrap()
+        .config_dir()
+        .join("lazyfetch")
+        .join("config.toml");
+
+    let config_path = if let Some(path) = &args.config {
+        let path = path.to_owned();
+
+        if !path.exists() {
+            ConfigFile::get_config_file(config_path)
+        } else {
+            ConfigFile::get_config_file(path)
+        }
+    } else {
+        ConfigFile::get_config_file(config_path)
     };
 
-    if let Ok(config) = std::fs::read_to_string(config_path) {
-        (args, toml::from_str::<ConfigFile>(&config).unwrap())
+    if let Ok(config) = config_path {
+        (args, config)
     } else {
         (args, ConfigFile::default())
     }
 }
+
+mod cli;
