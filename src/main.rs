@@ -1,5 +1,6 @@
 mod assets;
 mod config;
+mod error;
 mod info;
 mod utils;
 
