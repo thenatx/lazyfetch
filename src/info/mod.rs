@@ -1,6 +1,6 @@
 use crate::config::ConfigFile;
 
-trait Module {
+trait ModuleVar {
     fn new() -> Self;
 }
 
