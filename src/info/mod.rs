@@ -1,7 +1,7 @@
 use crate::config::ConfigFile;
 
-trait ModuleVar {
-    fn new() -> Self;
+trait ModuleVar<T> {
+    fn new(config: Option<T>) -> Self;
 }
 
 pub fn get_info_lines(config: ConfigFile) -> Vec<String> {
