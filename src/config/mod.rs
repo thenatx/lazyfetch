@@ -6,13 +6,27 @@ use std::path::PathBuf;
 #[derive(Serialize, Deserialize, Default, Debug)]
 pub struct ConfigFile {
     pub output: Output,
-    pub general: Option<General>,
-    pub os: Option<Os>,
-    pub uptime: Option<Uptime>,
-    pub memory: Option<Memory>,
-    pub cpu: Option<Cpu>,
-    pub gpu: Option<Gpu>,
-    pub disk: Option<Disk>,
+
+    #[serde(rename = "general")]
+    pub general: Option<GeneralConfig>,
+
+    #[serde(rename = "os")]
+    pub os: Option<OsConfig>,
+
+    #[serde(rename = "uptime")]
+    pub uptime: Option<UptimeConfig>,
+
+    #[serde(rename = "memory")]
+    pub memory: Option<MemoryConfig>,
+
+    #[serde(rename = "cpu")]
+    pub cpu: Option<CpuConfig>,
+
+    #[serde(rename = "gpu")]
+    pub gpu: Option<GpuConfig>,
+
+    #[serde(rename = "disk")]
+    pub disk: Option<DiskConfig>,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
@@ -29,42 +43,42 @@ pub struct Module {
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct General {
+pub struct GeneralConfig {
     pub ascii_art: Option<String>,
     pub stdout: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct Os {
+pub struct OsConfig {
     pub shorthand: Option<bool>,
     pub show_arch: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct Uptime {
+pub struct UptimeConfig {
     pub shorthand: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct Memory {
+pub struct MemoryConfig {
     pub percent: Option<bool>,
     pub unit: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct Cpu {
+pub struct CpuConfig {
     pub speed_type: Option<String>,
     pub show_brand: Option<bool>,
     pub show_speed: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct Gpu {
+pub struct GpuConfig {
     pub show_brand: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct Disk {
+pub struct DiskConfig {
     pub show_disk: Option<String>,
     pub subtitle: Option<String>,
     pub show_percent: Option<bool>,
