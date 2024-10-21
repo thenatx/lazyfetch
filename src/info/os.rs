@@ -7,18 +7,16 @@ pub struct OsVar<'a> {
 }
 
 impl<'a> ModuleVar<OsConfig> for OsVar<'a> {
-    fn new(config: Option<OsConfig>) -> Self {
-        let _config = config.unwrap();
-        let name = "os";
-        let option_value = sysinfo::System::name();
-
+    fn new() -> Self {
         Self {
-            name,
-            value: error::handle_empty_var(option_value),
+            name: "os",
+            value: String::new(),
         }
     }
 
-    fn name(&self) -> String {
-        self.name.to_string()
+    fn value(&mut self, cfg: Option<OsConfig>) {
+        let _cfg: OsConfig = cfg.unwrap();
+        let option_value = sysinfo::System::name();
+        self.value = error::handle_empty_var(option_value);
     }
 }
