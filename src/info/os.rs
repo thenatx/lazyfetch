@@ -1,13 +1,14 @@
 use super::ModuleVar;
-use crate::error;
+use crate::{config::OsConfig, error};
 
-pub struct Os<'a> {
+pub struct OsVar<'a> {
     name: &'a str, // Name of the var to use un config (like in "Hello from ${os}")
     value: String, // This value is used to replace var while parsing, for example: "${os}" to "Arch linux"
 }
 
-impl<'a> ModuleVar for Os<'a> {
-    fn new() -> Self {
+impl<'a> ModuleVar<OsConfig> for OsVar<'a> {
+    fn new(config: Option<OsConfig>) -> Self {
+        let _config = config.unwrap();
         let name = "os";
         let option_value = sysinfo::System::name();
 
@@ -15,5 +16,9 @@ impl<'a> ModuleVar for Os<'a> {
             name,
             value: error::handle_empty_var(option_value),
         }
+    }
+
+    fn name(&self) -> String {
+        self.name.to_string()
     }
 }
