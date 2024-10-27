@@ -62,13 +62,14 @@ fn init_vars<'a>() -> ModuleVars<'a> {
 }
 
 fn parse_vars<'a>(vars: &ModuleVars<'a>, content: &str) -> String {
-    let re: Regex = Regex::new(r"\$\{([a-zA-Z])+\}").unwrap();
+    let re: Regex = Regex::new(r"\$\{([a-zA-Z]+)\}").unwrap();
 
-    re.replace(content, |cap: &Captures| {
+    re.replace_all(content, |cap: &Captures| {
         let var = vars.get(&cap[1]);
+        println!("{}", &cap[1]);
         match var {
             Some(f) => f(),
-            None => error::invalid_var(content),
+            None => error::invalid_var(&content, &cap[1]),
         }
     })
     .to_string()
