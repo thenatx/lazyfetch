@@ -9,8 +9,17 @@ impl ModuleVar<!> for UserNameVar<'_> {
         Self { name: "username" }
     }
 
+    // In this case the cfg is `!` because there're no config options
     fn value(&mut self, _cfg: Option<&!>) -> String {
-        let users = sysinfo::Users::new_with_refreshed_list();
-        users.list()[0].name().to_string()
+        // TODO: Use other method to do this that works on all systems
+        let user = std::env::var("USER");
+
+        match user {
+            Ok(u) => u,
+            Err(_) => {
+                eprintln!("Error, seems like you don't have the $USER enveironment variable defined in your system");
+                std::process::exit(1)
+            }
+        }
     }
 }
