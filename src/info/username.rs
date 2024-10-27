@@ -10,7 +10,7 @@ impl ModuleVar<!> for UserNameVar<'_> {
     }
 
     // In this case the cfg is `!` because there're no config options
-    fn value(&mut self, _cfg: Option<&!>) -> String {
+    fn value(self, _cfg: Option<&!>) -> String {
         // TODO: Use other method to do this that works on all systems
         let user = std::env::var("USER");
 

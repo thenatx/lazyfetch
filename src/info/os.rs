@@ -10,7 +10,7 @@ impl<'a> ModuleVar<OsConfig> for OsVar<'a> {
         Self { name: "os" }
     }
 
-    fn value(&mut self, cfg: Option<&OsConfig>) -> String {
+    fn value(self, cfg: Option<&OsConfig>) -> String {
         let cfg: &OsConfig = cfg.unwrap();
 
         let name = sysinfo::System::name();

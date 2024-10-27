@@ -9,7 +9,7 @@ use std::collections::HashMap;
 // T: is the config for the
 trait ModuleVar<T> {
     fn new() -> Self; // Creation method (Only define the name, for calculate the value use their method instead)
-    fn value(&mut self, cfg: Option<&T>) -> String;
+    fn value(self, cfg: Option<&T>) -> String;
 }
 
 macro_rules! insert_var {
@@ -75,5 +75,6 @@ fn parse_vars<'a>(vars: &ModuleVars<'a>, content: &str) -> String {
     .to_string()
 }
 
+mod host;
 mod os;
 mod username;
