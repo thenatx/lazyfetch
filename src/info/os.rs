@@ -20,13 +20,13 @@ impl<'a> ModuleVar<OsConfig> for OsVar<'a> {
             sysinfo::System::os_version()
         };
 
-        let name = error::handle_empty_var(name);
-        let version = error::handle_empty_var(version);
+        let name = error::option_var_value(name);
+        let version = error::option_var_value(version);
 
         if cfg.show_arch.unwrap_or_default() {
             format!("{} {}", name, version)
         } else {
-            let arch = error::handle_empty_var(sysinfo::System::cpu_arch());
+            let arch = error::option_var_value(sysinfo::System::cpu_arch());
             format!("{} {} ({})", name, version, arch)
         }
     }
