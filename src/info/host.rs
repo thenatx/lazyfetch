@@ -4,7 +4,7 @@ use sysinfo::System;
 use super::ModuleVar;
 
 pub struct HostNameVar<'a> {
-    name: &'a str,
+    pub name: &'a str,
 }
 
 impl ModuleVar<!> for HostNameVar<'_> {
@@ -17,7 +17,7 @@ impl ModuleVar<!> for HostNameVar<'_> {
 }
 
 pub struct HostVar<'a> {
-    name: &'a str,
+    pub name: &'a str,
 }
 
 impl ModuleVar<!> for HostVar<'_> {
