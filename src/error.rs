@@ -10,3 +10,8 @@ pub fn handle_empty_var(module: Option<String>) -> String {
         }
     }
 }
+
+pub fn invalid_var(m_content: &str) -> ! {
+    eprintln!("Error: invalid module at \"{}\"", m_content);
+    std::process::exit(1)
+}

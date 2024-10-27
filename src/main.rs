@@ -1,3 +1,4 @@
+#![feature(never_type)]
 mod assets;
 mod config;
 mod error;
