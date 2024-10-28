@@ -1,10 +1,10 @@
 use clap::Parser;
 use cli::ClapOpts;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::{borrow::Cow, path::PathBuf};
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct ConfigFile {
+pub struct ConfigFile<'a> {
     pub output: Output,
 
     #[serde(rename = "general")]
@@ -17,7 +17,7 @@ pub struct ConfigFile {
     pub uptime: Option<UptimeConfig>,
 
     #[serde(rename = "memory")]
-    pub memory: Option<MemoryConfig>,
+    pub memory: Option<MemoryConfig<'a>>,
 
     #[serde(rename = "cpu")]
     pub cpu: Option<CpuConfig>,
@@ -60,9 +60,9 @@ pub struct UptimeConfig {
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct MemoryConfig {
+pub struct MemoryConfig<'a> {
     pub percent: Option<bool>,
-    pub unit: Option<String>,
+    pub unit: Option<Cow<'a, str>>,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
@@ -84,7 +84,7 @@ pub struct DiskConfig {
     pub show_percent: Option<bool>,
 }
 
-impl ConfigFile {
+impl<'a> ConfigFile<'a> {
     fn get_config_file(file_path: PathBuf) -> Result<Self, std::io::Error> {
         if !file_path.exists() {
             let _ = std::fs::create_dir_all(&file_path);
@@ -97,7 +97,7 @@ impl ConfigFile {
 }
 
 static DEFAULT_CONFIG_FILE: &str = include_str!("./default.toml");
-pub fn get_config() -> (ClapOpts, ConfigFile) {
+pub fn get_config<'a>() -> (ClapOpts, ConfigFile<'a>) {
     let args = ClapOpts::parse();
     let config_path = directories::BaseDirs::new()
         .unwrap()

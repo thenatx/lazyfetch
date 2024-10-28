@@ -1,11 +1,6 @@
 use crate::{
     config::{ConfigFile, OsConfig},
     error,
-    info::{
-        host::{HostNameVar, HostVar},
-        os::OsVar,
-        username::UserNameVar,
-    },
 };
 use regex::{Captures, Regex};
 use std::collections::HashMap;
@@ -59,10 +54,11 @@ type ModuleVars<'a> = HashMap<&'a str, Box<dyn Fn() -> String>>;
 
 fn init_vars<'a>() -> ModuleVars<'a> {
     let mut vars: ModuleVars = HashMap::new();
-    insert_var!(vars, OsVar::new(), &OsConfig::default());
-    insert_var!(vars, UserNameVar::new());
-    insert_var!(vars, HostNameVar::new());
-    insert_var!(vars, HostVar::new());
+    insert_var!(vars, os::OsVar::new(), &OsConfig::default());
+    insert_var!(vars, username::UserNameVar::new());
+    insert_var!(vars, host::HostNameVar::new());
+    insert_var!(vars, host::HostVar::new());
+    insert_var!(vars, memory::MemoryVar::new());
 
     vars
 }
@@ -82,5 +78,6 @@ fn parse_vars<'a>(vars: &ModuleVars<'a>, content: &str) -> String {
 }
 
 mod host;
+mod memory;
 mod os;
 mod username;
