@@ -20,7 +20,7 @@ impl<'a> ModuleVar<MemoryConfig<'a>> for MemoryVar<'a> {
     fn value(self, cfg: Option<&MemoryConfig>) -> String {
         let config = cfg.unwrap();
 
-        // Try evit a shared reference to move this clone
+        // TODO: try evit a shared reference to move this clone
         let unit = &config.unit.clone().unwrap_or(Cow::from(DEFAULT_UNIT));
         let mut sys = System::new();
         sys.refresh_memory();
