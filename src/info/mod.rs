@@ -1,5 +1,5 @@
 use crate::{
-    config::{ConfigFile, CpuConfig, DiskConfig, GpuConfig, MemoryConfig, OsConfig},
+    config::{ConfigFile, CpuConfig, DiskConfig, GpuConfig, MemoryConfig, OsConfig, UptimeConfig},
     error,
 };
 use regex::{Captures, Regex};
@@ -62,6 +62,7 @@ fn init_vars<'a>() -> ModuleVars<'a> {
     insert_var!(vars, gpu::GpuVar::new(), GpuConfig::default());
     insert_var!(vars, cpu::CpuVar::new(), CpuConfig::default());
     insert_var!(vars, disk::DiskVar::new(), DiskConfig::default());
+    insert_var!(vars, uptime::UptimeVar::new(), UptimeConfig::default());
 
     vars
 }
@@ -86,4 +87,5 @@ mod gpu;
 mod host;
 mod memory;
 mod os;
+mod uptime;
 mod username;
