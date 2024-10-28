@@ -59,6 +59,7 @@ fn init_vars<'a>() -> ModuleVars<'a> {
     insert_var!(vars, host::HostNameVar::new());
     insert_var!(vars, host::HostVar::new());
     insert_var!(vars, memory::MemoryVar::new());
+    insert_var!(vars, gpu::GpuVar::new());
 
     vars
 }
@@ -77,6 +78,7 @@ fn parse_vars<'a>(vars: &ModuleVars<'a>, content: &str) -> String {
     .to_string()
 }
 
+mod gpu;
 mod host;
 mod memory;
 mod os;
