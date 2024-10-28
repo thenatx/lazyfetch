@@ -1,5 +1,5 @@
 use crate::{
-    config::{ConfigFile, OsConfig},
+    config::{ConfigFile, CpuConfig, GpuConfig, MemoryConfig, OsConfig},
     error,
 };
 use regex::{Captures, Regex};
@@ -17,7 +17,7 @@ macro_rules! insert_var {
     };
 
     ($m:expr, $s:expr, $c:expr) => {
-        $m.insert($s.name, Box::new(|| $s.value(Some($c))))
+        $m.insert($s.name, Box::new(|| $s.value(Some(&$c))))
     };
 }
 
@@ -54,12 +54,13 @@ type ModuleVars<'a> = HashMap<&'a str, Box<dyn Fn() -> String>>;
 
 fn init_vars<'a>() -> ModuleVars<'a> {
     let mut vars: ModuleVars = HashMap::new();
-    insert_var!(vars, os::OsVar::new(), &OsConfig::default());
+    insert_var!(vars, os::OsVar::new(), OsConfig::default());
     insert_var!(vars, username::UserNameVar::new());
     insert_var!(vars, host::HostNameVar::new());
     insert_var!(vars, host::HostVar::new());
-    insert_var!(vars, memory::MemoryVar::new());
-    insert_var!(vars, gpu::GpuVar::new());
+    insert_var!(vars, memory::MemoryVar::new(), MemoryConfig::default());
+    insert_var!(vars, gpu::GpuVar::new(), GpuConfig::default());
+    insert_var!(vars, cpu::CpuVar::new(), CpuConfig::default());
 
     vars
 }
@@ -78,6 +79,7 @@ fn parse_vars<'a>(vars: &ModuleVars<'a>, content: &str) -> String {
     .to_string()
 }
 
+mod cpu;
 mod gpu;
 mod host;
 mod memory;
