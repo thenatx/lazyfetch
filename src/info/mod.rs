@@ -1,5 +1,5 @@
 use crate::{
-    config::{ConfigFile, CpuConfig, GpuConfig, MemoryConfig, OsConfig},
+    config::{ConfigFile, CpuConfig, DiskConfig, GpuConfig, MemoryConfig, OsConfig},
     error,
 };
 use regex::{Captures, Regex};
@@ -61,6 +61,7 @@ fn init_vars<'a>() -> ModuleVars<'a> {
     insert_var!(vars, memory::MemoryVar::new(), MemoryConfig::default());
     insert_var!(vars, gpu::GpuVar::new(), GpuConfig::default());
     insert_var!(vars, cpu::CpuVar::new(), CpuConfig::default());
+    insert_var!(vars, disk::DiskVar::new(), DiskConfig::default());
 
     vars
 }
@@ -80,6 +81,7 @@ fn parse_vars<'a>(vars: &ModuleVars<'a>, content: &str) -> String {
 }
 
 mod cpu;
+mod disk;
 mod gpu;
 mod host;
 mod memory;
