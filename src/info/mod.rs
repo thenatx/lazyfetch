@@ -1,6 +1,8 @@
 use crate::{config::ConfigFile, error};
 use regex::{Captures, Regex};
+use starbase_shell::ShellType;
 use std::collections::HashMap;
+use std::process::{Command, Stdio};
 
 // T: is the config for the
 trait ModuleVar<T> {
@@ -26,20 +28,24 @@ pub fn get_info_lines(config: ConfigFile) -> Vec<String> {
     let vars = init_vars(&config);
 
     for module in modules {
-        if module.key.is_empty() {
-            let parsed_content = parse_vars(&vars, &module.content);
-            output.push(parsed_content);
-            continue;
-        }
-
         if module.content.is_empty() {
             let parsed_key = parse_vars(&vars, &module.key);
             output.push(parsed_key);
             continue;
         }
 
+        let parsed_content = if module.shell.unwrap_or(false) {
+            exec_shell(&module.content)
+        } else {
+            parse_vars(&vars, &module.content)
+        };
+
+        if module.key.is_empty() {
+            output.push(parsed_content);
+            continue;
+        }
+
         let parsed_key = parse_vars(&vars, &module.key);
-        let parsed_content = parse_vars(&vars, &module.content);
         output.push(format!("{}{separator}{}", parsed_key, parsed_content))
     }
 
@@ -74,6 +80,28 @@ fn parse_vars<'a>(vars: &'a ModuleVars, content: &str) -> String {
         }
     })
     .to_string()
+}
+
+fn exec_shell(input: &str) -> String {
+    let shell = match ShellType::try_detect() {
+        Ok(shell) => shell.to_string(),
+        Err(_) => ShellType::Sh.to_string(),
+    };
+
+    let out = Command::new(shell)
+        .arg("-c")
+        .arg(input)
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap()
+        .wait_with_output()
+        .expect("Failed to run the shell");
+
+    let mut output_string =
+        String::from_utf8(out.stdout).expect("Error parsing the output to string");
+    output_string.replace_range(output_string.len() - 1..output_string.len(), "");
+
+    output_string
 }
 
 mod cpu;
