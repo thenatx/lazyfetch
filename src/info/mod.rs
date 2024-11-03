@@ -6,7 +6,7 @@ use std::process::{Command, Stdio};
 
 type ModuleVars<'a> = HashMap<&'a str, Box<dyn Fn() -> String + 'a>>;
 
-// T: is the config for the
+// T: is the config struct for the var
 trait ModuleVar<T> {
     fn new() -> Self; // Creation method (Only define the name, for calculate the value use their method instead)
     fn value(self, cfg: Option<&T>) -> String;
