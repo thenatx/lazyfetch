@@ -24,7 +24,7 @@ impl<'a> ModuleVar<UptimeConfig> for UptimeVar<'a> {
         let minutes =
             (((uptime_secs % SECONDS_IN_DAYS) % SECONDS_IN_HOURS) / SECONDS_IN_MINUTES) as u64;
 
-        if config.shorthand.unwrap() {
+        if config.shorthand.unwrap_or(false) {
             if days == 0 && hours > 0 {
                 return format!("{}h {}m", hours, minutes);
             } else if days == 0 && hours == 0 {
