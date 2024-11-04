@@ -1,5 +1,4 @@
-use crate::{config::ConfigFile, error};
-use regex::{Captures, Regex};
+use crate::config::ConfigFile;
 use starbase_shell::ShellType;
 use std::collections::HashMap;
 use std::process::{Command, Stdio};
@@ -21,7 +20,7 @@ pub fn get_info_lines(config: ConfigFile) -> Vec<String> {
 
     for module in modules {
         if module.content.is_empty() {
-            let parsed_key = parse_vars(&vars, &module.key);
+            let parsed_key = parse::parse_vars(&vars, &module.key);
             output.push(parsed_key);
             continue;
         }
@@ -29,7 +28,7 @@ pub fn get_info_lines(config: ConfigFile) -> Vec<String> {
         let parsed_content = if module.shell.unwrap_or(false) {
             exec_shell(&module.content)
         } else {
-            parse_vars(&vars, &module.content)
+            parse::parse_vars(&vars, &module.content)
         };
 
         if module.key.is_empty() {
@@ -37,24 +36,11 @@ pub fn get_info_lines(config: ConfigFile) -> Vec<String> {
             continue;
         }
 
-        let parsed_key = parse_vars(&vars, &module.key);
+        let parsed_key = parse::parse_vars(&vars, &module.key);
         output.push(format!("{}{separator}{}", parsed_key, parsed_content))
     }
 
     output
-}
-
-fn parse_vars<'a>(vars: &'a ModuleVars, content: &str) -> String {
-    let re: Regex = Regex::new(r"\$\{([a-zA-Z]+)\}").unwrap();
-
-    re.replace_all(content, |cap: &Captures| {
-        let var = vars.get(&cap[1]);
-        match var {
-            Some(f) => f(),
-            None => error::invalid_var(&content, &cap[1]),
-        }
-    })
-    .to_string()
 }
 
 fn exec_shell(input: &str) -> String {
@@ -85,6 +71,7 @@ mod gpu;
 mod host;
 mod memory;
 mod os;
+mod parse;
 mod uptime;
 mod username;
 mod vars;
