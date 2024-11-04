@@ -8,14 +8,13 @@ use super::ModuleVar;
 
 const CPU_FREQ_BASE_DIR: &str = "/sys/devices/system/cpu/cpu0/cpufreq/";
 
-pub struct CpuVar<'a> {
-    pub name: &'a str,
-}
+pub struct CpuVar;
 
-impl ModuleVar<CpuConfig> for CpuVar<'_> {
-    fn new() -> Self {
-        Self { name: "cpu" }
+impl ModuleVar<CpuConfig> for CpuVar {
+    fn name(self) -> String {
+        String::from("cpu")
     }
+
     fn value(self, cfg: Option<&CpuConfig>) -> String {
         let config = cfg.unwrap();
 

@@ -1,15 +1,12 @@
 use super::ModuleVar;
 use crate::{config::OsConfig, error};
 
-pub struct OsVar<'a> {
-    pub name: &'a str, // Name of the var to use un config (like in "Hello from ${os}")
-}
+pub struct OsVar;
 
-impl<'a> ModuleVar<OsConfig> for OsVar<'a> {
-    fn new() -> Self {
-        Self { name: "os" }
+impl ModuleVar<OsConfig> for OsVar {
+    fn name(self) -> String {
+        String::from("os")
     }
-
     fn value(self, cfg: Option<&OsConfig>) -> String {
         let cfg: &OsConfig = cfg.unwrap();
 

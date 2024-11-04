@@ -6,13 +6,11 @@ const DEFAULT_DISK: &str = "/";
 const BYTES_IN_GIGABYTES: u64 = 1000000000;
 
 // TODO: refactor this function and implement "subtitle" config option
-pub struct DiskVar<'a> {
-    pub name: &'a str,
-}
+pub struct DiskVar;
 
-impl<'a> ModuleVar<DiskConfig> for DiskVar<'a> {
-    fn new() -> Self {
-        Self { name: "disk" }
+impl ModuleVar<DiskConfig> for DiskVar {
+    fn name(self) -> String {
+        String::from("disk")
     }
 
     fn value(self, cfg: Option<&DiskConfig>) -> String {

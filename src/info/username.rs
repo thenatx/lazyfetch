@@ -1,12 +1,10 @@
 use super::ModuleVar;
 
-pub struct UserNameVar<'a> {
-    pub name: &'a str,
-}
+pub struct UserNameVar;
 
-impl ModuleVar<!> for UserNameVar<'_> {
-    fn new() -> Self {
-        Self { name: "username" }
+impl ModuleVar<!> for UserNameVar {
+    fn name(self) -> String {
+        String::from("username")
     }
 
     // In this case the cfg is `!` because there're no config options

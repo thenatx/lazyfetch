@@ -3,26 +3,22 @@ use sysinfo::System;
 
 use super::ModuleVar;
 
-pub struct HostNameVar<'a> {
-    pub name: &'a str,
-}
+pub struct HostNameVar;
 
-impl ModuleVar<!> for HostNameVar<'_> {
-    fn new() -> Self {
-        Self { name: "hostname" }
+impl ModuleVar<!> for HostNameVar {
+    fn name(self) -> String {
+        String::from("hostname")
     }
     fn value(self, _cfg: Option<&!>) -> String {
         System::host_name().expect("Error getting the host name")
     }
 }
 
-pub struct HostVar<'a> {
-    pub name: &'a str,
-}
+pub struct HostVar;
 
-impl ModuleVar<!> for HostVar<'_> {
-    fn new() -> Self {
-        Self { name: "host" }
+impl ModuleVar<!> for HostVar {
+    fn name(self) -> String {
+        String::from("hostname")
     }
     fn value(self, _cfg: Option<&!>) -> String {
         // TODO: Support other systems that aren't GNU/linux based

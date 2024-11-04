@@ -7,14 +7,13 @@ const SECONDS_IN_HOURS: f64 = 3600.0;
 const SECONDS_IN_MINUTES: f64 = 60.0;
 const SECONDS_IN_DAYS: f64 = 86400.0;
 
-pub struct UptimeVar<'a> {
-    pub name: &'a str,
-}
+pub struct UptimeVar;
 
-impl<'a> ModuleVar<UptimeConfig> for UptimeVar<'a> {
-    fn new() -> Self {
-        Self { name: "uptime" }
+impl ModuleVar<UptimeConfig> for UptimeVar {
+    fn name(self) -> String {
+        String::from("uptime")
     }
+
     fn value(self, cfg: Option<&UptimeConfig>) -> String {
         let config = cfg.unwrap();
         let uptime_secs = System::uptime() as f64;

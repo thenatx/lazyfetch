@@ -4,13 +4,11 @@ use std::process::Command;
 
 use super::ModuleVar;
 
-pub struct GpuVar<'a> {
-    pub name: &'a str,
-}
+pub struct GpuVar;
 
-impl<'a> ModuleVar<GpuConfig> for GpuVar<'a> {
-    fn new() -> Self {
-        Self { name: "gpu" }
+impl ModuleVar<GpuConfig> for GpuVar {
+    fn name(self) -> String {
+        String::from("gpu")
     }
 
     fn value(self, cfg: Option<&GpuConfig>) -> String {

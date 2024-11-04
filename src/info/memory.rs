@@ -8,13 +8,11 @@ const BYTES_IN_KILOBYTES: u64 = 1024;
 const BYTES_IN_MEGABYTES: u64 = 1000000;
 const BYTES_IN_GIGABYTES: u64 = 1000000000;
 
-pub struct MemoryVar<'a> {
-    pub name: &'a str,
-}
+pub struct MemoryVar;
 
-impl<'a> ModuleVar<MemoryConfig<'a>> for MemoryVar<'a> {
-    fn new() -> Self {
-        Self { name: "memory" }
+impl<'a> ModuleVar<MemoryConfig<'a>> for MemoryVar {
+    fn name(self) -> String {
+        String::from("memory")
     }
 
     fn value(self, cfg: Option<&MemoryConfig>) -> String {
