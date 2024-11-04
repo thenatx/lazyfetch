@@ -18,7 +18,7 @@ pub struct HostVar;
 
 impl ModuleVar<!> for HostVar {
     fn name(self) -> String {
-        String::from("hostname")
+        String::from("host")
     }
     fn value(self, _cfg: Option<&!>) -> String {
         // TODO: Support other systems that aren't GNU/linux based
