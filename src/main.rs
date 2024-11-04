@@ -1,5 +1,6 @@
 #![feature(never_type)]
 mod assets;
+mod colors;
 mod config;
 mod error;
 mod info;

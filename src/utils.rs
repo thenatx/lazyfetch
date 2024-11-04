@@ -1,3 +1,4 @@
+use crate::colors;
 use regex::Regex;
 use std::collections::HashMap;
 use termion::color;
@@ -20,7 +21,12 @@ pub fn make_columns(left: Vec<String>, right: Vec<String>) -> String {
         let padding_spaces =
             " ".repeat(padding - UnicodeWidthStr::width(strip_ansi_codes(left_line).as_str()));
 
-        let columned_line = format!("{}{}{}\n", left_line, padding_spaces, right_line);
+        let columned_line = format!(
+            "{}{}{}\n",
+            left_line,
+            padding_spaces,
+            colors::colorize_info(right_line)
+        );
         output.push_str(&columned_line)
     }
 
