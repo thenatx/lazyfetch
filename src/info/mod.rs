@@ -28,7 +28,8 @@ pub fn get_info_lines(config: ConfigFile) -> Vec<String> {
         let parsed_content = if module.shell.unwrap_or(false) {
             exec_shell(&module.content)
         } else {
-            parse::parse_vars(&vars, &module.content)
+            let content = crate::colors::colorize_info(&module.content);
+            parse::parse_vars(&vars, &content)
         };
 
         if module.key.is_empty() {
@@ -36,7 +37,11 @@ pub fn get_info_lines(config: ConfigFile) -> Vec<String> {
             continue;
         }
 
-        let parsed_key = parse::parse_vars(&vars, &module.key);
+        let parsed_key = {
+            let key = crate::colors::colorize_info(&module.key);
+            parse::parse_vars(&vars, &key)
+        };
+
         output.push(format!("{}{separator}{}", parsed_key, parsed_content))
     }
 

@@ -1,4 +1,5 @@
 use regex::{Captures, Regex};
+use termion::color;
 
 use crate::error;
 
@@ -7,24 +8,24 @@ trait ColorVar {
 }
 
 pub fn colorize_info(content: &str) -> String {
-    parse_colors(content)
+    parse_colors(content) + termion::color::Reset.fg_str()
 }
 
 fn parse_colors(content: &str) -> String {
-    let re = Regex::new(r"\$\{color:([a-zA-Z-0-9]+)\}").unwrap();
+    let re = Regex::new(r"\$\{color:(#?[a-zA-Z-0-9]+)\}").unwrap();
 
     re.replace_all(content, |cap: &Captures| {
         let m = &cap[1];
 
         match m {
-            "red" => Red::add_color(None),
-            "green" => Red::add_color(None),
-            "blue" => Red::add_color(None),
-            "yellow" => Red::add_color(None),
-            "cyan" => Red::add_color(None),
-            "magenta" => Red::add_color(None),
-            "white" => Red::add_color(None),
-            "black" => Red::add_color(None),
+            "red" => color::Red.fg_str().to_string(),
+            "green" => color::Green.fg_str().to_string(),
+            "blue" => color::Blue.fg_str().to_string(),
+            "yellow" => color::Yellow.fg_str().to_string(),
+            "cyan" => color::Cyan.fg_str().to_string(),
+            "magenta" => color::Magenta.fg_str().to_string(),
+            "white" => color::White.fg_str().to_string(),
+            "black" => color::Black.fg_str().to_string(),
             other => {
                 if !is_hex_color(&other) {
                     error::invalid_var(content, other)
@@ -49,14 +50,6 @@ fn is_hex_color(hex: &str) -> bool {
     true
 }
 
-struct Red;
-
-impl ColorVar for Red {
-    fn add_color(_value: Option<&str>) -> String {
-        String::from(termion::color::Red.fg_str())
-    }
-}
-
 struct Hex;
 
 impl ColorVar for Hex {
@@ -71,6 +64,8 @@ impl ColorVar for Hex {
 impl Hex {
     fn full_hex_to_rgb(hex: &str) -> termion::color::Rgb {
         let mut hex_bytes = hex.bytes();
+        hex_bytes.next().unwrap();
+
         fn parse_hex_double(bytes: &mut core::str::Bytes) -> u8 {
             let group = [bytes.next().unwrap(), bytes.next().unwrap()];
             let s = core::str::from_utf8(&group).unwrap();
