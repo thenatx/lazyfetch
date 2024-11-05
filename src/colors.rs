@@ -14,28 +14,29 @@ pub fn colorize_info(content: &str) -> String {
 fn parse_colors(content: &str) -> String {
     let re = Regex::new(r"\$\{color:(#?[a-zA-Z-0-9]+)\}").unwrap();
 
-    re.replace_all(content, |cap: &Captures| {
-        let m = &cap[1];
+    return re
+        .replace_all(content, |cap: &Captures| {
+            let m = &cap[1];
 
-        match m.to_lowercase().as_str() {
-            "red" => color::Red.fg_str().to_string(),
-            "green" => color::Green.fg_str().to_string(),
-            "blue" => color::Blue.fg_str().to_string(),
-            "yellow" => color::Yellow.fg_str().to_string(),
-            "cyan" => color::Cyan.fg_str().to_string(),
-            "magenta" => color::Magenta.fg_str().to_string(),
-            "white" => color::White.fg_str().to_string(),
-            "black" => color::Black.fg_str().to_string(),
-            other => {
-                if !is_hex_color(&other) {
-                    error::invalid_var(content, other)
+            match m.to_lowercase().as_str() {
+                "red" | "r" => color::Red.fg_str().to_string(),
+                "green" | "g" => color::Green.fg_str().to_string(),
+                "blue" | "b" => color::Blue.fg_str().to_string(),
+                "yellow" | "y" => color::Yellow.fg_str().to_string(),
+                "cyan" | "c" => color::Cyan.fg_str().to_string(),
+                "magenta" | "m" => color::Magenta.fg_str().to_string(),
+                "white" => color::White.fg_str().to_string(),
+                "black" => color::Black.fg_str().to_string(),
+                other => {
+                    if !is_hex_color(&other) {
+                        error::invalid_var(content, other)
+                    }
+
+                    Hex::add_color(Some(other))
                 }
-
-                Hex::add_color(Some(other))
             }
-        }
-    })
-    .to_string()
+        })
+        .to_string();
 }
 
 fn is_hex_color(hex: &str) -> bool {
@@ -47,7 +48,7 @@ fn is_hex_color(hex: &str) -> bool {
         return false;
     }
 
-    true
+    return true;
 }
 
 struct Hex;
@@ -55,13 +56,44 @@ struct Hex;
 impl ColorVar for Hex {
     fn add_color(value: Option<&str>) -> String {
         let hex_code = value.unwrap_or("#000000");
-        let rgb = Self::full_hex_to_rgb(hex_code);
+
+        let rgb = if hex_code.len() == 4 {
+            Self::short_hex_to_rgb(hex_code[1..4].chars())
+        } else {
+            Self::full_hex_to_rgb(hex_code)
+        };
 
         rgb.fg_string()
     }
 }
 
 impl Hex {
+    fn short_hex_to_rgb(hex: std::str::Chars) -> termion::color::Rgb {
+        let rgb: Vec<u8> = hex
+            .map(|h| match h {
+                '0' => 0x00,
+                '1' => 0x11,
+                '2' => 0x22,
+                '3' => 0x33,
+                '4' => 0x44,
+                '5' => 0x55,
+                '6' => 0x66,
+                '7' => 0x77,
+                '8' => 0x88,
+                '9' => 0x99,
+                'a' | 'A' => 0xAA,
+                'b' | 'B' => 0xBB,
+                'c' | 'C' => 0xCC,
+                'd' | 'D' => 0xDD,
+                'e' | 'E' => 0xEE,
+                'f' | 'F' => 0xFF,
+                _ => panic!(),
+            })
+            .collect();
+
+        termion::color::Rgb(rgb[0], rgb[1], rgb[2])
+    }
+
     fn full_hex_to_rgb(hex: &str) -> termion::color::Rgb {
         let mut hex_bytes = hex.bytes();
         hex_bytes.next().unwrap();
