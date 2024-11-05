@@ -21,7 +21,7 @@ pub fn get_info_lines(config: ConfigFile) -> Vec<String> {
     for module in modules {
         if module.content.is_empty() {
             let parsed_key = parse::parse_vars(&vars, &module.key);
-            output.push(parsed_key);
+            output.push(crate::colors::colorize_info(&parsed_key));
             continue;
         }
 
