@@ -17,7 +17,7 @@ fn parse_colors(content: &str) -> String {
     re.replace_all(content, |cap: &Captures| {
         let m = &cap[1];
 
-        match m {
+        match m.to_lowercase().as_str() {
             "red" => color::Red.fg_str().to_string(),
             "green" => color::Green.fg_str().to_string(),
             "blue" => color::Blue.fg_str().to_string(),
