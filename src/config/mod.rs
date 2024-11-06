@@ -1,208 +1,127 @@
 use clap::Parser;
+use cli::ClapOpts;
 use serde::{Deserialize, Serialize};
+use std::{borrow::Cow, path::PathBuf};
 
-use std::path::PathBuf;
-
-#[derive(Parser, Debug)]
-pub struct ClapOpts {
-    // Config options
-    #[arg(long, value_name = "PATH")]
-    #[arg(help = "Path to the config file")]
-    pub config: Option<PathBuf>,
-
-    #[arg(long, exclusive = true)]
-    #[arg(help = "If have to generate the default config, fails if you already have one")]
-    pub gen_config: bool,
-
-    #[arg(long, exclusive = true)]
-    #[arg(help = "Force the creation of the config file, overwrite the previous config")]
-    pub gen_config_force: bool,
-
-    #[arg(long, help = "Set the distro for the ascii art")]
-    pub distro: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct ConfigFile {
+#[derive(Serialize, Deserialize, Default, Debug)]
+pub struct ConfigFile<'a> {
     pub output: Output,
-    pub general: Option<General>,
-    pub os: Option<Os>,
-    pub uptime: Option<Uptime>,
-    pub memory: Option<Memory>,
-    pub cpu: Option<Cpu>,
-    pub gpu: Option<Gpu>,
-    pub disk: Option<Disk>,
+
+    #[serde(rename = "general")]
+    pub general: Option<GeneralConfig>,
+
+    #[serde(rename = "os")]
+    pub os: Option<OsConfig>,
+
+    #[serde(rename = "uptime")]
+    pub uptime: Option<UptimeConfig>,
+
+    #[serde(rename = "memory")]
+    pub memory: Option<MemoryConfig<'a>>,
+
+    #[serde(rename = "cpu")]
+    pub cpu: Option<CpuConfig>,
+
+    #[serde(rename = "gpu")]
+    pub gpu: Option<GpuConfig>,
+
+    #[serde(rename = "disk")]
+    pub disk: Option<DiskConfig>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Default, Debug)]
 pub struct Output {
     pub separator: Option<String>,
     pub format: Vec<Module>,
 }
 
-impl Default for Output {
-    fn default() -> Self {
-        Self {
-            separator: Some(String::from(": ")),
-            format: vec![],
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Default, Debug)]
 pub struct Module {
     pub key: String,
     pub shell: Option<bool>,
     pub content: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct General {
+#[derive(Serialize, Deserialize, Default, Debug)]
+pub struct GeneralConfig {
     pub ascii_art: Option<String>,
     pub stdout: Option<bool>,
 }
 
-impl Default for General {
-    fn default() -> Self {
-        Self {
-            ascii_art: Some("".to_string()),
-            stdout: Some(false),
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone, Copy, Debug)]
-pub struct Os {
+#[derive(Serialize, Deserialize, Default, Debug)]
+pub struct OsConfig {
     pub shorthand: Option<bool>,
     pub show_arch: Option<bool>,
 }
 
-impl Default for Os {
-    fn default() -> Self {
-        Self {
-            shorthand: Some(false),
-            show_arch: Some(true),
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone, Copy, Debug)]
-pub struct Uptime {
+#[derive(Serialize, Deserialize, Default, Debug)]
+pub struct UptimeConfig {
     pub shorthand: Option<bool>,
 }
 
-impl Default for Uptime {
-    fn default() -> Self {
-        Self {
-            shorthand: Some(false),
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct Memory {
+#[derive(Serialize, Deserialize, Default, Debug)]
+pub struct MemoryConfig<'a> {
     pub percent: Option<bool>,
-    pub unit: Option<String>,
+    pub unit: Option<Cow<'a, str>>,
 }
 
-impl Default for Memory {
-    fn default() -> Self {
-        Self {
-            percent: Some(true),
-            unit: Some("Mib".to_string()),
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct Cpu {
+#[derive(Serialize, Deserialize, Default, Debug)]
+pub struct CpuConfig {
     pub speed_type: Option<String>,
     pub show_brand: Option<bool>,
     pub show_speed: Option<bool>,
 }
 
-impl Default for Cpu {
-    fn default() -> Self {
-        Self {
-            speed_type: Some("bios_limit".to_string()),
-            show_brand: Some(true),
-            show_speed: Some(true),
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct Gpu {
+#[derive(Serialize, Deserialize, Default, Debug)]
+pub struct GpuConfig {
     pub show_brand: Option<bool>,
 }
 
-impl Default for Gpu {
-    fn default() -> Self {
-        Self {
-            show_brand: Some(true),
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct Disk {
+#[derive(Serialize, Deserialize, Default, Debug)]
+pub struct DiskConfig {
     pub show_disk: Option<String>,
     pub subtitle: Option<String>,
     pub show_percent: Option<bool>,
 }
 
-impl Default for Disk {
-    fn default() -> Self {
-        Self {
-            show_disk: Some("/".to_string()),
-            subtitle: Some("none".to_string()),
-            show_percent: Some(true),
+impl<'a> ConfigFile<'a> {
+    fn get_config_file(file_path: PathBuf) -> Result<Self, std::io::Error> {
+        if !file_path.exists() {
+            let _ = std::fs::create_dir_all(&file_path);
+            let _ = std::fs::write(&file_path, DEFAULT_CONFIG_FILE);
         }
+
+        let content = std::fs::read_to_string(file_path)?;
+        Ok(toml::from_str(&content).unwrap())
     }
 }
 
-impl Default for ConfigFile {
-    fn default() -> Self {
-        Self {
-            output: Output::default(),
-            general: Some(General {
-                ascii_art: Some(String::from("")),
-                stdout: Some(false),
-            }),
-            os: Some(Os::default()),
-            uptime: Some(Uptime::default()),
-            memory: Some(Memory::default()),
-            cpu: Some(Cpu::default()),
-            gpu: Some(Gpu::default()),
-            disk: Some(Disk::default()),
-        }
-    }
-}
-
-pub fn get_config() -> (ClapOpts, ConfigFile) {
-    static DEFAULT_CONFIG_FILE: &str = include_str!("./default.toml");
+static DEFAULT_CONFIG_FILE: &str = include_str!("./default.toml");
+pub fn get_config<'a>() -> (ClapOpts, ConfigFile<'a>) {
     let args = ClapOpts::parse();
+    let config_path = directories::BaseDirs::new()
+        .unwrap()
+        .config_dir()
+        .join("lazyfetch")
+        .join("config.toml");
 
     let config_path = if let Some(path) = &args.config {
-        path.to_owned()
-    } else {
-        let config_dir = directories::BaseDirs::new()
-            .unwrap()
-            .config_dir()
-            .join("lazyfetch");
+        let path = path.to_owned();
 
-        let config_file = config_dir.join("config.toml");
-        if !config_file.exists() || !config_dir.exists() {
-            let _ = std::fs::create_dir_all(&config_dir);
-            let _ = std::fs::write(&config_file, DEFAULT_CONFIG_FILE);
+        if !path.exists() {
+            ConfigFile::get_config_file(config_path)
+        } else {
+            ConfigFile::get_config_file(path)
         }
-
-        config_file
+    } else {
+        ConfigFile::get_config_file(config_path)
     };
 
-    if let Ok(config) = std::fs::read_to_string(config_path) {
-        (args, toml::from_str::<ConfigFile>(&config).unwrap())
+    if let Ok(config) = config_path {
+        (args, config)
     } else {
         (args, ConfigFile::default())
     }
 }
+
+mod cli;

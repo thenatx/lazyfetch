@@ -1,41 +1,51 @@
 use crate::config::ConfigFile;
 use starbase_shell::ShellType;
+use std::collections::HashMap;
 use std::process::{Command, Stdio};
 
-type ModuleFn = Box<dyn Fn() -> String>;
+type ModuleVars<'a> = HashMap<String, Box<dyn Fn() -> String + 'a>>;
 
-const DEFAULT_SEPARATOR: &str = ": ";
+// T: is the config struct for the var
+trait ModuleVar<T> {
+    fn name(self) -> String; // Creation method
+    fn value(self, cfg: Option<&T>) -> String;
+}
+
 pub fn get_info_lines(config: ConfigFile) -> Vec<String> {
-    let separator = match &config.output.separator {
-        Some(separator) => separator,
-        None => DEFAULT_SEPARATOR,
-    };
+    let separator = &config.output.separator.as_ref().unwrap();
+    let modules = &config.output.format;
 
-    let key_vars = vars::init_vars();
-    let content_vars = vars::set_content_vars(config.clone());
-    config
-        .output
-        .format
-        .iter()
-        .map(|module| {
-            if module.content.is_empty() {
-                return parse::handle_parse_err(parse::parse_module(&module.key, &key_vars));
-            }
+    let mut output: Vec<String> = Vec::new();
+    let vars = vars::init_vars(&config);
 
-            let content = if module.shell.unwrap_or_default() {
-                exec_shell(&module.content)
-            } else {
-                parse::handle_parse_err(parse::parse_module(&module.content, &content_vars))
-            };
+    for module in modules {
+        if module.content.is_empty() {
+            let parsed_key = parse::parse_vars(&vars, &module.key);
+            output.push(crate::colors::colorize_info(&parsed_key));
+            continue;
+        }
 
-            if module.key.is_empty() {
-                return content;
-            }
+        let parsed_content = if module.shell.unwrap_or(false) {
+            exec_shell(&module.content)
+        } else {
+            let content = crate::colors::colorize_info(&module.content);
+            parse::parse_vars(&vars, &content)
+        };
 
-            let key = parse::handle_parse_err(parse::parse_module(&module.key, &key_vars));
-            format!("{}{}{}", key, &separator, content)
-        })
-        .collect()
+        if module.key.is_empty() {
+            output.push(parsed_content);
+            continue;
+        }
+
+        let parsed_key = {
+            let key = crate::colors::colorize_info(&module.key);
+            parse::parse_vars(&vars, &key)
+        };
+
+        output.push(format!("{}{separator}{}", parsed_key, parsed_content))
+    }
+
+    output
 }
 
 fn exec_shell(input: &str) -> String {
@@ -65,8 +75,8 @@ mod disk;
 mod gpu;
 mod host;
 mod memory;
+mod os;
 mod parse;
-mod system;
 mod uptime;
-mod user;
+mod username;
 mod vars;
