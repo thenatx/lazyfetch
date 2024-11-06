@@ -1,0 +1,27 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  cargo-build:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: {{ matrix.os }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Run clippy
+        uses: actions-rs/cargo@v1.0.1
+        with:
+          command: cargo build
+          args: --quiet
