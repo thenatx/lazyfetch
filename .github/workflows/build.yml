@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Run build
+      - name: Run cargo build
         uses: actions-rs/cargo@v1.0.1
         with:
           command: build
