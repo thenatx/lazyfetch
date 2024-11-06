@@ -46,5 +46,5 @@ fn delete_end_extraspace(content: String) -> String {
         return content.replace('\n', "");
     }
 
-    return content;
+    content;
 }
