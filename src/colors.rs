@@ -48,7 +48,7 @@ fn is_hex_color(hex: &str) -> bool {
         return false;
     }
 
-    true;
+    true
 }
 
 struct Hex;
