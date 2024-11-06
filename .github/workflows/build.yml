@@ -1,0 +1,21 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  cargo-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Run cargo build
+        uses: actions-rs/cargo@v1.0.1
+        with:
+          command: build
+          args: --release --quiet
