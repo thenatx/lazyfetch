@@ -28,7 +28,7 @@ fn parse_colors(content: &str) -> String {
                 "white" => color::White.fg_str().to_string(),
                 "black" => color::Black.fg_str().to_string(),
                 other => {
-                    if !is_hex_color(&other) {
+                    if !is_hex_color(other) {
                         error::invalid_var(content, other)
                     }
 
@@ -48,7 +48,7 @@ fn is_hex_color(hex: &str) -> bool {
         return false;
     }
 
-    return true;
+    true;
 }
 
 struct Hex;
