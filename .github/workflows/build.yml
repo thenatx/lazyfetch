@@ -20,8 +20,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Run clippy
+      - name: Run build
         uses: actions-rs/cargo@v1.0.1
         with:
-          command: cargo build
-          args: --quiet
+          command: build
+          args: --release --quiet
