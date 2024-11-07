@@ -84,7 +84,7 @@ pub struct DiskConfig {
     pub show_percent: Option<bool>,
 }
 
-impl<'a> ConfigFile<'a> {
+impl ConfigFile<'_> {
     fn get_config_file(file_path: PathBuf) -> Result<Self, std::io::Error> {
         if !file_path.exists() {
             let _ = std::fs::create_dir_all(&file_path);
