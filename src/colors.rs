@@ -14,29 +14,28 @@ pub fn colorize_info(content: &str) -> String {
 fn parse_colors(content: &str) -> String {
     let re = Regex::new(r"\$\{color:(#?[a-zA-Z-0-9]+)\}").unwrap();
 
-    return re
-        .replace_all(content, |cap: &Captures| {
-            let m = &cap[1];
+    re.replace_all(content, |cap: &Captures| {
+        let m = &cap[1];
 
-            match m.to_lowercase().as_str() {
-                "red" | "r" => color::Red.fg_str().to_string(),
-                "green" | "g" => color::Green.fg_str().to_string(),
-                "blue" | "b" => color::Blue.fg_str().to_string(),
-                "yellow" | "y" => color::Yellow.fg_str().to_string(),
-                "cyan" | "c" => color::Cyan.fg_str().to_string(),
-                "magenta" | "m" => color::Magenta.fg_str().to_string(),
-                "white" => color::White.fg_str().to_string(),
-                "black" => color::Black.fg_str().to_string(),
-                other => {
-                    if !is_hex_color(other) {
-                        error::invalid_var(content, other)
-                    }
-
-                    Hex::add_color(Some(other))
+        match m.to_lowercase().as_str() {
+            "red" | "r" => color::Red.fg_str().to_string(),
+            "green" | "g" => color::Green.fg_str().to_string(),
+            "blue" | "b" => color::Blue.fg_str().to_string(),
+            "yellow" | "y" => color::Yellow.fg_str().to_string(),
+            "cyan" | "c" => color::Cyan.fg_str().to_string(),
+            "magenta" | "m" => color::Magenta.fg_str().to_string(),
+            "white" => color::White.fg_str().to_string(),
+            "black" => color::Black.fg_str().to_string(),
+            other => {
+                if !is_hex_color(other) {
+                    error::invalid_var(content, other)
                 }
+
+                Hex::add_color(Some(other))
             }
-        })
-        .to_string();
+        }
+    })
+    .to_string()
 }
 
 fn is_hex_color(hex: &str) -> bool {
