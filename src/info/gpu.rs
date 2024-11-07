@@ -11,38 +11,21 @@ impl ModuleVar<GpuConfig> for GpuVar {
         String::from("gpu")
     }
 
+    #[cfg(target_os = "linux")]
+    #[allow(clippy::regex_creation_in_loops)]
     fn value(self, cfg: Option<&GpuConfig>) -> String {
-        if !cfg!(target_os = "linux") {
-            eprintln!("Error: unsupported system");
-            std::process::exit(1)
-        }
-
         let config = cfg.unwrap();
-        // NOTE: This implement for get the gpu info was taked from freshfetch source
-        // I also plain to make a rust binding for the thing that uses lspci
         let lspci = {
             let lspci_cmd = Command::new("sh").arg("-c").arg("lspci -mm").output();
-            match lspci_cmd {
-                Ok(lscpi) => match String::from_utf8(lscpi.stdout) {
-                    Ok(output) => output,
-                    Err(err) => {
-                        eprintln!("The output of the command contains invalid UTF8.\n{}", err);
-                        panic!();
-                    }
-                },
-                Err(e) => {
-                    eprintln!("{}", e);
-                    panic!();
-                }
-            }
+            String::from_utf8(lspci_cmd.unwrap().stdout).unwrap()
         };
 
         let mut gpus = {
             let mut to_return = Vec::new();
+            let lspci_lines = lspci.split("\n").collect::<Vec<&str>>();
             let regex =
                 Regex::new(r#"(?i)"(.*?(?:Display|3D|VGA).*?)" "(.*?\[.*?\])" "(?:.*?\[(.*?)\])""#)
                     .unwrap();
-            let lspci_lines = lspci.split("\n").collect::<Vec<&str>>();
             for line in lspci_lines.iter() {
                 let captures = regex.captures(line);
                 if let Some(captures) = captures {
@@ -71,19 +54,21 @@ impl ModuleVar<GpuConfig> for GpuVar {
                 let regex = Regex::new(r#".*?AMD.*?ATI.*?"#).unwrap();
                 brand = String::from(regex.replace_all(&brand, "AMD ATI"));
 
-                to_return = GpuStruct {
-                    name: gpu.2.clone(),
-                    brand: brand
+                to_return = GpuStruct::new(
+                    gpu.2.clone(),
+                    brand
                         .replace("[", "")
                         .replace("]", "")
                         .replace("OEM", "")
                         .replace("Advanced Micro Devices, Inc.", ""),
-                }
+                );
+                break;
             } else if gpu.1.to_lowercase().contains("nvidea") {
                 to_return = GpuStruct::new(
                     gpu.2.clone(),
                     gpu.1.clone().replace("[", "").replace("]", ""),
-                )
+                );
+                break;
             } else if gpu.1.to_lowercase().contains("intel") {
                 let mut brand = gpu.1.clone();
                 brand = {
@@ -105,6 +90,7 @@ impl ModuleVar<GpuConfig> for GpuVar {
                     brand = String::from("Intel HD Graphics");
                 }
                 to_return = GpuStruct::new(gpu.2.clone(), brand);
+                break;
             }
         }
 

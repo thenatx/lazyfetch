@@ -10,7 +10,7 @@ const BYTES_IN_GIGABYTES: u64 = 1000000000;
 
 pub struct MemoryVar;
 
-impl<'a> ModuleVar<MemoryConfig<'a>> for MemoryVar {
+impl ModuleVar<MemoryConfig<'_>> for MemoryVar {
     fn name(self) -> String {
         String::from("memory")
     }
