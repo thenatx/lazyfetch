@@ -1,18 +1,20 @@
-use crate::config::ConfigFile;
 use starbase_shell::ShellType;
 use std::collections::HashMap;
 use std::process::{Command, Stdio};
 
-type ModuleVars<'a> = HashMap<String, Box<dyn Fn() -> String + 'a>>;
+use crate::config::ConfigFile;
+use crate::error::LazyfetchError;
+
+type ModuleVars<'a> = HashMap<String, Box<dyn Fn() -> Result<String, LazyfetchError> + 'a>>;
 
 // T: is the config struct for the var
 trait ModuleVar<T> {
     fn name(self) -> String; // Creation method
-    fn value(self, cfg: Option<&T>) -> String;
+    fn value(self, cfg: Option<&T>) -> Result<String, LazyfetchError>;
 }
 
-pub fn get_info_lines(config: ConfigFile) -> Vec<String> {
-    let separator = &config.output.separator.as_ref().unwrap();
+pub fn get_info_lines(config: ConfigFile) -> Result<Vec<String>, LazyfetchError> {
+    let separator = &config.output.separator.clone().unwrap_or_default();
     let modules = &config.output.format;
 
     let mut output: Vec<String> = Vec::new();
@@ -20,16 +22,16 @@ pub fn get_info_lines(config: ConfigFile) -> Vec<String> {
 
     for module in modules {
         if module.content.is_empty() {
-            let parsed_key = parse::parse_vars(&vars, &module.key);
-            output.push(crate::colors::colorize_info(&parsed_key));
+            let parsed_key = parse::parse_vars(&vars, &module.key)?;
+            output.push(crate::colors::colorize_info(&parsed_key)?);
             continue;
         }
 
         let parsed_content = if module.shell.unwrap_or(false) {
-            exec_shell(&module.content)
+            exec_shell(&module.content)?
         } else {
-            let content = crate::colors::colorize_info(&module.content);
-            parse::parse_vars(&vars, &content)
+            let content = crate::colors::colorize_info(&module.content)?;
+            parse::parse_vars(&vars, &content)?
         };
 
         if module.key.is_empty() {
@@ -38,17 +40,17 @@ pub fn get_info_lines(config: ConfigFile) -> Vec<String> {
         }
 
         let parsed_key = {
-            let key = crate::colors::colorize_info(&module.key);
-            parse::parse_vars(&vars, &key)
+            let key = crate::colors::colorize_info(&module.key)?;
+            parse::parse_vars(&vars, &key)?
         };
 
         output.push(format!("{}{separator}{}", parsed_key, parsed_content))
     }
 
-    output
+    Ok(output)
 }
 
-fn exec_shell(input: &str) -> String {
+fn exec_shell(input: &str) -> Result<String, LazyfetchError> {
     let shell = match ShellType::try_detect() {
         Ok(shell) => shell.to_string(),
         Err(_) => ShellType::Sh.to_string(),
@@ -58,16 +60,14 @@ fn exec_shell(input: &str) -> String {
         .arg("-c")
         .arg(input)
         .stdout(Stdio::piped())
-        .spawn()
-        .unwrap()
-        .wait_with_output()
-        .expect("Failed to run the shell");
+        .spawn()?
+        .wait_with_output()?;
 
     let mut output_string =
         String::from_utf8(out.stdout).expect("Error parsing the output to string");
     output_string.replace_range(output_string.len() - 1..output_string.len(), "");
 
-    output_string
+    Ok(output_string)
 }
 
 mod cpu;

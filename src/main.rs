@@ -6,26 +6,24 @@ mod error;
 mod info;
 mod utils;
 
-fn main() {
+use error::LazyfetchError;
+
+fn main() -> Result<(), LazyfetchError> {
     let (cli, config) = config::get_config();
-    let system_info = info::get_info_lines(config);
+    let system_info = info::get_info_lines(config)?;
 
-    let ascii_lines = if cli.distro.is_some() {
-        let ascii = assets::get_ascii(cli.distro.unwrap().to_lowercase());
-        utils::vectorize_string_file(ascii)
+    let ascii_lines = if let Some(distro) = cli.distro {
+        utils::vectorize_string_file(assets::get_ascii(&distro))
     } else {
-        let ascii = match sysinfo::System::name() {
-            Some(name) => assets::get_ascii(name.to_lowercase()),
-            None => assets::get_ascii("linux".to_string()),
-        };
-
-        utils::vectorize_string_file(ascii)
+        let os_name = sysinfo::System::name().unwrap_or("linux".to_string());
+        utils::vectorize_string_file(assets::get_ascii(&os_name))
     };
 
     let ascii: Vec<String> = ascii_lines
         .iter()
-        .map(|line| utils::parse_color(line))
-        .collect();
+        .map(|line| Ok(utils::parse_color(line)?))
+        .collect::<Result<Vec<_>, LazyfetchError>>()?;
 
-    print!("{}", utils::make_columns(ascii, system_info))
+    print!("{}", utils::make_columns(ascii, system_info)?);
+    Ok(())
 }

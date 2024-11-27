@@ -1,4 +1,5 @@
 use super::ModuleVar;
+use crate::error::LazyfetchError;
 
 pub struct UserNameVar;
 
@@ -8,16 +9,8 @@ impl ModuleVar<!> for UserNameVar {
     }
 
     // In this case the cfg is `!` because there're no config options
-    fn value(self, _cfg: Option<&!>) -> String {
+    fn value(self, _cfg: Option<&!>) -> Result<String, LazyfetchError> {
         // TODO: Use other method to do this that works on all systems
-        let user = std::env::var("USER");
-
-        match user {
-            Ok(u) => u,
-            Err(_) => {
-                eprintln!("Error, seems like you don't have the $USER enveironment variable defined in your system");
-                std::process::exit(1)
-            }
-        }
+        Ok(std::env::var("USER")?)
     }
 }
