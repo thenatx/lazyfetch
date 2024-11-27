@@ -1,4 +1,4 @@
-use crate::config::DiskConfig;
+use crate::{config::DiskConfig, error::LazyfetchError};
 
 use super::ModuleVar;
 
@@ -13,7 +13,7 @@ impl ModuleVar<DiskConfig> for DiskVar {
         String::from("disk")
     }
 
-    fn value(self, cfg: Option<&DiskConfig>) -> String {
+    fn value(self, cfg: Option<&DiskConfig>) -> Result<String, LazyfetchError> {
         let config = cfg.unwrap();
         let mut show_disk: &str = &config.show_disk.clone().unwrap_or(DEFAULT_DISK.to_string());
 
@@ -46,13 +46,13 @@ impl ModuleVar<DiskConfig> for DiskVar {
 
         if config.show_percent.unwrap_or(true) {
             let percent = (used_space as f64 / disk_info.total_space as f64) * 100.0;
-            return format!(
+            return Ok(format!(
                 "{}G / {}G ({}%)",
                 used_space, disk_info.total_space, percent as u64
-            );
+            ));
         }
 
-        format!("{}G / {}G", used_space, disk_info.total_space)
+        Ok(format!("{}G / {}G", used_space, disk_info.total_space))
     }
 }
 

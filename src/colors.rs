@@ -1,49 +1,51 @@
 use regex::{Captures, Regex};
 use termion::color;
 
-use crate::error;
+use crate::error::LazyfetchError;
 
 trait ColorVar {
-    fn add_color(value: Option<&str>) -> String; // value is used for subvalues like hex codes
+    fn add_color(value: Option<&str>) -> Result<String, LazyfetchError>; // value is used for subvalues like hex codes
 }
 
-pub fn colorize_info(content: &str) -> String {
-    parse_colors(content) + termion::color::Reset.fg_str()
+pub fn colorize_info(content: &str) -> Result<String, LazyfetchError> {
+    Ok(parse_colors(content)? + termion::color::Reset.fg_str())
 }
 
-fn parse_colors(content: &str) -> String {
-    let re = Regex::new(r"\$\{color:(#?[a-zA-Z-0-9]+)\}").unwrap();
-
-    re.replace_all(content, |cap: &Captures| {
+fn parse_colors(content: &str) -> Result<String, LazyfetchError> {
+    let re = Regex::new(r"\$\{color:(#?[a-zA-Z-0-9]+)\}")?;
+    let content = crate::utils::replace_regex_matches(&re, content, |cap: &Captures| {
         let m = &cap[1];
-
-        match m.to_lowercase().as_str() {
-            "red" | "r" => color::Red.fg_str().to_string(),
-            "green" | "g" => color::Green.fg_str().to_string(),
-            "blue" | "b" => color::Blue.fg_str().to_string(),
-            "yellow" | "y" => color::Yellow.fg_str().to_string(),
-            "cyan" | "c" => color::Cyan.fg_str().to_string(),
-            "magenta" | "m" => color::Magenta.fg_str().to_string(),
-            "white" => color::White.fg_str().to_string(),
-            "black" => color::Black.fg_str().to_string(),
+        let color = match m.to_lowercase().as_str() {
+            "red" | "r" => color::Red.fg_str(),
+            "green" | "g" => color::Green.fg_str(),
+            "yellow" | "y" => color::Yellow.fg_str(),
+            "blue" | "b" => color::Blue.fg_str(),
+            "cyan" | "c" => color::Cyan.fg_str(),
+            "magenta" | "m" => color::Magenta.fg_str(),
+            "white" => color::White.fg_str(),
+            "black" => color::Black.fg_str(),
             other => {
                 if !is_hex_color(other) {
-                    error::invalid_var(content, other)
+                    return Err(LazyfetchError::InvalidVar(
+                        m.to_string(),
+                        content.to_string(),
+                    ));
                 }
 
-                Hex::add_color(Some(other))
+                &Hex::add_color(Some(other)).map_err(|e| match e {
+                    _ => LazyfetchError::InvalidVar(m.to_string(), content.to_string()),
+                })?
             }
-        }
-    })
-    .to_string()
+        };
+
+        Ok(color.to_string())
+    })?;
+
+    Ok(content.to_string())
 }
 
 fn is_hex_color(hex: &str) -> bool {
-    if !hex.contains('#') {
-        return false;
-    }
-
-    if !matches!(hex.len(), 4 | 7) {
+    if !hex.contains('#') || !matches!(hex.len(), 4 | 7) {
         return false;
     }
 
@@ -53,61 +55,49 @@ fn is_hex_color(hex: &str) -> bool {
 struct Hex;
 
 impl ColorVar for Hex {
-    fn add_color(value: Option<&str>) -> String {
+    fn add_color(value: Option<&str>) -> Result<String, LazyfetchError> {
         let hex_code = value.unwrap_or("#000000");
 
         let rgb = if hex_code.len() == 4 {
-            Self::short_hex_to_rgb(hex_code[1..4].chars())
+            Self::short_hex_to_rgb(hex_code[1..4].chars())?
         } else {
-            Self::full_hex_to_rgb(hex_code)
+            Self::full_hex_to_rgb(hex_code)?
         };
 
-        rgb.fg_string()
+        Ok(rgb.fg_string())
     }
 }
 
 impl Hex {
-    fn short_hex_to_rgb(hex: std::str::Chars) -> termion::color::Rgb {
+    fn short_hex_to_rgb(hex: std::str::Chars) -> Result<termion::color::Rgb, LazyfetchError> {
         let rgb: Vec<u8> = hex
-            .map(|h| match h {
-                '0' => 0x00,
-                '1' => 0x11,
-                '2' => 0x22,
-                '3' => 0x33,
-                '4' => 0x44,
-                '5' => 0x55,
-                '6' => 0x66,
-                '7' => 0x77,
-                '8' => 0x88,
-                '9' => 0x99,
-                'a' | 'A' => 0xAA,
-                'b' | 'B' => 0xBB,
-                'c' | 'C' => 0xCC,
-                'd' | 'D' => 0xDD,
-                'e' | 'E' => 0xEE,
-                'f' | 'F' => 0xFF,
-                _ => panic!(),
+            .map(|h| {
+                if let Some(c) = h.to_digit(16) {
+                    Ok(c as u8 * 0x11)
+                } else {
+                    Err(LazyfetchError::Unknown)
+                }
             })
-            .collect();
+            .collect::<Result<Vec<_>, LazyfetchError>>()?;
 
-        termion::color::Rgb(rgb[0], rgb[1], rgb[2])
+        Ok(termion::color::Rgb(rgb[0], rgb[1], rgb[2]))
     }
 
-    fn full_hex_to_rgb(hex: &str) -> termion::color::Rgb {
+    fn full_hex_to_rgb(hex: &str) -> Result<termion::color::Rgb, LazyfetchError> {
         let mut hex_bytes = hex.bytes();
         hex_bytes.next().unwrap();
 
-        fn parse_hex_double(bytes: &mut core::str::Bytes) -> u8 {
+        fn parse_hex_double(bytes: &mut core::str::Bytes) -> Result<u8, LazyfetchError> {
             let group = [bytes.next().unwrap(), bytes.next().unwrap()];
             let s = core::str::from_utf8(&group).unwrap();
 
-            u8::from_str_radix(s, 16).unwrap()
+            Ok(u8::from_str_radix(s, 16)?)
         }
 
-        let r = parse_hex_double(&mut hex_bytes);
-        let g = parse_hex_double(&mut hex_bytes);
-        let b = parse_hex_double(&mut hex_bytes);
+        let r = parse_hex_double(&mut hex_bytes)?;
+        let g = parse_hex_double(&mut hex_bytes)?;
+        let b = parse_hex_double(&mut hex_bytes)?;
 
-        termion::color::Rgb(r, g, b)
+        Ok(termion::color::Rgb(r, g, b))
     }
 }

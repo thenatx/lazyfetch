@@ -1,28 +1,34 @@
-use termion::color;
+use std::fmt::{Debug, Formatter};
+use thiserror::Error;
 
-// This function is used to handle the case when a function to get system info return a `None` value
-pub fn option_var_value<T>(value: Option<T>) -> T {
-    match value {
-        Some(v) => v,
-        None => {
-            eprintln!(
-                "Error while try getting this var value, seems like you're in a unsupported system"
-            );
-            std::process::exit(1)
-        }
-    }
+#[derive(Error)]
+#[error(transparent)]
+pub enum LazyfetchError {
+    Io(#[from] std::io::Error),
+    BadRegex(#[from] regex::Error),
+    Deserialize(#[from] toml::de::Error),
+    ParseInt(#[from] core::num::ParseIntError),
+    EnveironmentVar(#[from] std::env::VarError),
+
+    #[error("Use of a invalid variable '{0}' on the module '{1}'")]
+    InvalidVar(String, String), // The 0 value is the undefined var used and the 1 var use the module where that var is tried to used
+
+    #[error("{0}")]
+    Custom(String),
+
+    #[error("Something wrong happend")]
+    Unknown,
 }
 
-pub fn invalid_var(m_content: &str, var: &str) -> ! {
-    let red_fg = color::Red.fg_str();
-    let reset_fg = color::Reset.fg_str();
-
-    let marked_error = format!("{}{}{}", red_fg, var, reset_fg);
-    let module_with_marked_error = m_content.to_string().replace(var, &marked_error);
-
-    eprintln!(
-        "Error: invalid var used at the module \"{}\"",
-        module_with_marked_error
-    );
-    std::process::exit(1)
+impl Debug for LazyfetchError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+        match self {
+            LazyfetchError::Unknown
+            | LazyfetchError::Custom(_)
+            | LazyfetchError::InvalidVar(_, _) => {
+                write!(f, "{}", self)
+            }
+            _ => write!(f, "{}: {:#}", self, self),
+        }
+    }
 }

@@ -1,8 +1,8 @@
-use crate::config::CpuConfig;
+use crate::{config::CpuConfig, error::LazyfetchError};
 
 use sysinfo::System;
 
-use std::fs::read_to_string;
+use std::fs;
 
 use super::ModuleVar;
 
@@ -15,7 +15,8 @@ impl ModuleVar<CpuConfig> for CpuVar {
         String::from("cpu")
     }
 
-    fn value(self, cfg: Option<&CpuConfig>) -> String {
+    #[cfg(target_os = "linux")]
+    fn value(self, cfg: Option<&CpuConfig>) -> Result<String, LazyfetchError> {
         let config = cfg.unwrap();
 
         let mut sys = System::new_all();
@@ -26,30 +27,18 @@ impl ModuleVar<CpuConfig> for CpuVar {
             ""
         };
 
-        #[cfg(target_os = "linux")]
         if config.show_speed.unwrap_or(true) {
             let speed_type = &config
                 .speed_type
                 .clone()
                 .unwrap_or("bios_limit".to_string());
-            let cpu_freq = match read_to_string(format!("{}{}", CPU_FREQ_BASE_DIR, speed_type)) {
-                Ok(val) => {
-                    let val = val.replace("\n", "");
-                    let cpu_freq: f64 = val.parse().unwrap();
+            let cpu_freq = fs::read_to_string(format!("{}{}", CPU_FREQ_BASE_DIR, speed_type))?
+                .replace("\n", "")
+                .parse::<f32>()
+                .unwrap()
+                / 1000000.0;
 
-                    cpu_freq / 1000000.0
-                }
-
-                Err(_) => {
-                    eprintln!(
-                        "Error: your speed_type no exists in the {} directory",
-                        CPU_FREQ_BASE_DIR
-                    );
-                    std::process::exit(1)
-                }
-            };
-
-            return format!("{} @ {}GHz", cpu_brand, cpu_freq);
+            return Ok(format!("{} @ {}GHz", cpu_brand, cpu_freq));
         }
 
         if !config.show_brand.unwrap_or(true) && !config.show_speed.unwrap_or(true) {
@@ -57,6 +46,6 @@ impl ModuleVar<CpuConfig> for CpuVar {
             std::process::exit(1)
         }
 
-        cpu_brand.to_string()
+        Ok(cpu_brand.to_string())
     }
 }

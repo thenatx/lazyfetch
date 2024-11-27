@@ -1,5 +1,5 @@
 use super::ModuleVar;
-use crate::config::MemoryConfig;
+use crate::{config::MemoryConfig, error::LazyfetchError};
 use std::borrow::Cow;
 use sysinfo::System;
 
@@ -15,7 +15,7 @@ impl ModuleVar<MemoryConfig<'_>> for MemoryVar {
         String::from("memory")
     }
 
-    fn value(self, cfg: Option<&MemoryConfig>) -> String {
+    fn value(self, cfg: Option<&MemoryConfig>) -> Result<String, LazyfetchError> {
         let config = cfg.unwrap();
 
         // TODO: try evit a shared reference to move this clone
@@ -28,13 +28,13 @@ impl ModuleVar<MemoryConfig<'_>> for MemoryVar {
 
         if config.percent.unwrap_or(true) {
             let percent = (used_memory / total_memory) * 100.0;
-            return format!(
+            return Ok(format!(
                 "{}{unit} / {}{unit} ({}%)",
                 used_memory, total_memory, percent as u64
-            );
+            ));
         }
 
-        format!("{}{unit} / {}{unit}", used_memory, total_memory)
+        Ok(format!("{}{unit} / {}{unit}", used_memory, total_memory))
     }
 }
 

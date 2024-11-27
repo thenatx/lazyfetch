@@ -1,4 +1,4 @@
-use crate::config::UptimeConfig;
+use crate::{config::UptimeConfig, error::LazyfetchError};
 use sysinfo::System;
 
 use super::ModuleVar;
@@ -14,7 +14,7 @@ impl ModuleVar<UptimeConfig> for UptimeVar {
         String::from("uptime")
     }
 
-    fn value(self, cfg: Option<&UptimeConfig>) -> String {
+    fn value(self, cfg: Option<&UptimeConfig>) -> Result<String, LazyfetchError> {
         let config = cfg.unwrap();
         let uptime_secs = System::uptime() as f64;
 
@@ -25,30 +25,29 @@ impl ModuleVar<UptimeConfig> for UptimeVar {
 
         if config.shorthand.unwrap_or(false) {
             if days == 0 && hours > 0 {
-                return format!("{}h {}m", hours, minutes);
+                return Ok(format!("{}h {}m", hours, minutes));
             } else if days == 0 && hours == 0 {
-                return format!("{}m", minutes);
+                return Ok(format!("{}m", minutes));
             }
 
             if hours == 0 && days > 0 {
-                return format!("{}d {}m", days, minutes);
+                return Ok(format!("{}d {}m", days, minutes));
             }
 
-            return format!("{}d {}h {}m", days, hours, minutes);
+            return Ok(format!("{}d {}h {}m", days, hours, minutes));
         }
 
-        if days == 0 && hours == 0 {
-            return format!("{} minutes", minutes);
+        match (days, hours, minutes) {
+            (1.., 0, 0) => Ok(format!("{} days", days)),
+            (0, 1.., 0) => Ok(format!("{} hours", hours)),
+            (0, 0, 1..) => Ok(format!("{} minutes", minutes)),
+            (1.., 1.., 0) => Ok(format!("{} days, {} hours", days, hours)),
+            (1.., 0, 1..) => Ok(format!("{} days, {} minutes", days, minutes)),
+            (0, 1.., 1..) => Ok(format!("{} hours, {} minutes", hours, minutes)),
+            _ => Ok(format!(
+                "{} days, {} hours, {} minutes",
+                days, hours, minutes
+            )),
         }
-
-        if days == 0 && hours > 0 {
-            return format!("{} hours, {} minutes", hours, minutes);
-        }
-
-        if hours == 0 && days > 0 {
-            return format!("{} days, {} minutes", days, minutes);
-        }
-
-        format!("{} days, {} hours, {} minutes", days, hours, minutes)
     }
 }

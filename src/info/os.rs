@@ -1,5 +1,5 @@
 use super::ModuleVar;
-use crate::{config::OsConfig, error};
+use crate::{config::OsConfig, error::LazyfetchError};
 
 pub struct OsVar;
 
@@ -7,24 +7,21 @@ impl ModuleVar<OsConfig> for OsVar {
     fn name(self) -> String {
         String::from("os")
     }
-    fn value(self, cfg: Option<&OsConfig>) -> String {
-        let cfg: &OsConfig = cfg.unwrap();
+    fn value(self, cfg: Option<&OsConfig>) -> Result<String, LazyfetchError> {
+        let cfg = cfg.unwrap();
 
-        let name = sysinfo::System::name();
+        let name = sysinfo::System::name().unwrap();
         let version = if cfg.shorthand.unwrap_or_default() {
-            sysinfo::System::long_os_version()
+            sysinfo::System::long_os_version().unwrap()
         } else {
-            sysinfo::System::os_version()
+            sysinfo::System::os_version().unwrap()
         };
 
-        let name = error::option_var_value(name);
-        let version = error::option_var_value(version);
-
         if cfg.show_arch.unwrap_or_default() {
-            format!("{} {}", name, version)
+            Ok(format!("{} {}", name, version))
         } else {
-            let arch = error::option_var_value(sysinfo::System::cpu_arch());
-            format!("{} {} ({})", name, version, arch)
+            let arch = sysinfo::System::cpu_arch().unwrap();
+            Ok(format!("{} {} ({})", name, version, arch))
         }
     }
 }

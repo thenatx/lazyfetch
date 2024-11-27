@@ -3,6 +3,7 @@ use regex::Regex;
 use std::process::Command;
 
 use super::ModuleVar;
+use crate::error::LazyfetchError;
 
 pub struct GpuVar;
 
@@ -13,19 +14,19 @@ impl ModuleVar<GpuConfig> for GpuVar {
 
     #[cfg(target_os = "linux")]
     #[allow(clippy::regex_creation_in_loops)]
-    fn value(self, cfg: Option<&GpuConfig>) -> String {
+    fn value(self, cfg: Option<&GpuConfig>) -> Result<String, LazyfetchError> {
         let config = cfg.unwrap();
         let lspci = {
             let lspci_cmd = Command::new("sh").arg("-c").arg("lspci -mm").output();
-            String::from_utf8(lspci_cmd.unwrap().stdout).unwrap()
+            String::from_utf8(lspci_cmd?.stdout).unwrap()
         };
 
         let mut gpus = {
             let mut to_return = Vec::new();
             let lspci_lines = lspci.split("\n").collect::<Vec<&str>>();
-            let regex =
-                Regex::new(r#"(?i)"(.*?(?:Display|3D|VGA).*?)" "(.*?\[.*?\])" "(?:.*?\[(.*?)\])""#)
-                    .unwrap();
+            let regex = Regex::new(
+                r#"(?i)"(.*?(?:Display|3D|VGA).*?)" "(.*?\[.*?\])" "(?:.*?\[(.*?)\])""#,
+            )?;
             for line in lspci_lines.iter() {
                 let captures = regex.captures(line);
                 if let Some(captures) = captures {
@@ -51,7 +52,7 @@ impl ModuleVar<GpuConfig> for GpuVar {
         for gpu in gpus.iter_mut() {
             if gpu.1.to_lowercase().contains("advanced") {
                 let mut brand = gpu.1.clone();
-                let regex = Regex::new(r#".*?AMD.*?ATI.*?"#).unwrap();
+                let regex = Regex::new(r#".*?AMD.*?ATI.*?"#)?;
                 brand = String::from(regex.replace_all(&brand, "AMD ATI"));
 
                 to_return = GpuStruct::new(
@@ -72,17 +73,17 @@ impl ModuleVar<GpuConfig> for GpuVar {
             } else if gpu.1.to_lowercase().contains("intel") {
                 let mut brand = gpu.1.clone();
                 brand = {
-                    let regex = Regex::new(".*?Intel").unwrap();
+                    let regex = Regex::new(".*?Intel")?;
                     String::from(regex.replace(&brand, "Intel"))
                 };
                 brand = brand.replace("(R)", "").replace("Corporation", "");
                 brand = {
-                    let regex = Regex::new(r#" \(.*?"#).unwrap();
+                    let regex = Regex::new(r#" \(.*?"#)?;
                     String::from(regex.replace_all(&brand, ""))
                 };
                 brand = brand.replace("Integrated Graphics Controller", "");
                 brand = {
-                    let regex = Regex::new(r#".*?Xeon.*?"#).unwrap();
+                    let regex = Regex::new(r#".*?Xeon.*?"#)?;
                     String::from(regex.replace(&brand, "Intel HD Graphics"))
                 };
                 brand = String::from(brand.trim());
@@ -95,10 +96,10 @@ impl ModuleVar<GpuConfig> for GpuVar {
         }
 
         if !config.show_brand.unwrap_or(false) {
-            return to_return.name;
+            return Ok(to_return.name);
         }
 
-        format!("{} {}", to_return.brand, to_return.name)
+        Ok(format!("{} {}", to_return.brand, to_return.name))
     }
 }
 

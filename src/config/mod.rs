@@ -3,6 +3,8 @@ use cli::ClapOpts;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, path::PathBuf};
 
+use crate::error::LazyfetchError;
+
 #[derive(Serialize, Deserialize, Default, Debug)]
 pub struct ConfigFile<'a> {
     pub output: Output,
@@ -85,39 +87,39 @@ pub struct DiskConfig {
 }
 
 impl ConfigFile<'_> {
-    fn get_config_file(file_path: PathBuf) -> Result<Self, std::io::Error> {
+    fn get_config_file(file_path: PathBuf) -> Result<Self, LazyfetchError> {
         if !file_path.exists() {
             let _ = std::fs::create_dir_all(&file_path);
             let _ = std::fs::write(&file_path, DEFAULT_CONFIG_FILE);
         }
 
         let content = std::fs::read_to_string(file_path)?;
-        Ok(toml::from_str(&content).unwrap())
+        Ok(toml::from_str(&content)?)
     }
 }
 
 static DEFAULT_CONFIG_FILE: &str = include_str!("./default.toml");
 pub fn get_config<'a>() -> (ClapOpts, ConfigFile<'a>) {
     let args = ClapOpts::parse();
-    let config_path = directories::BaseDirs::new()
+    let config_file = directories::BaseDirs::new()
         .unwrap()
         .config_dir()
         .join("lazyfetch")
         .join("config.toml");
 
-    let config_path = if let Some(path) = &args.config {
+    let config = if let Some(path) = &args.config {
         let path = path.to_owned();
 
-        if !path.exists() {
-            ConfigFile::get_config_file(config_path)
-        } else {
+        if path.exists() {
             ConfigFile::get_config_file(path)
+        } else {
+            ConfigFile::get_config_file(config_file)
         }
     } else {
-        ConfigFile::get_config_file(config_path)
+        ConfigFile::get_config_file(config_file)
     };
 
-    if let Ok(config) = config_path {
+    if let Ok(config) = config {
         (args, config)
     } else {
         (args, ConfigFile::default())
