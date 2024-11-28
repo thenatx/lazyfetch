@@ -1,9 +1,9 @@
 {
 	description = "Flake for lazyfetch (Developing and building)";
 
-	outputs = { self, crane, fenix, flake-utils, ... } @ inputs: 
-		flake-utils.lib.eachDefaultSystem (system: let 
-			rust-analyzer = fenix.packages.${system}.stable.rust-analyzer; 
+	outputs = { self, crane, fenix, flake-utils, ... } @ inputs:
+		flake-utils.lib.eachDefaultSystem (system: let
+			rust-analyzer = fenix.packages.${system}.stable.rust-analyzer;
       toolchain = with fenix.packages.${system};
           combine [
             minimal.rustc
@@ -15,8 +15,8 @@
 
 			pkgs = inputs.nixpkgs.legacyPackages.${system};
 			craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
-	
-			cargoArtifacts = craneLib.buildDepsOnly commonArgs; 
+
+			cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 			commonArgs = {
 				src = ./.;
 				doCheck = false;
@@ -50,7 +50,7 @@
 	inputs = {
 		nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 		flake-utils.url = "github:numtide/flake-utils";
-		
+
     crane.url = "github:ipetkov/crane";
 
 		fenix = {
