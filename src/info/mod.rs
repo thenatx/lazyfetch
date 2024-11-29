@@ -13,12 +13,12 @@ trait ModuleVar<T> {
     fn value(self, cfg: Option<&T>) -> Result<String, LazyfetchError>;
 }
 
-pub fn get_info_lines(config: ConfigFile) -> Result<Vec<String>, LazyfetchError> {
-    let separator = &config.output.separator.clone().unwrap_or_default();
+pub fn get_info_lines(config: &ConfigFile) -> Result<Vec<String>, LazyfetchError> {
+    let separator = config.output.separator.clone().unwrap_or_default();
     let modules = &config.output.format;
 
     let mut output: Vec<String> = Vec::new();
-    let vars = vars::init_vars(&config);
+    let vars = vars::init_vars(config);
 
     for module in modules {
         if module.content.is_empty() {
@@ -44,7 +44,7 @@ pub fn get_info_lines(config: ConfigFile) -> Result<Vec<String>, LazyfetchError>
             parse::parse_vars(&vars, &key)?
         };
 
-        output.push(format!("{}{separator}{}", parsed_key, parsed_content))
+        output.push(format!("{}{separator}{}", parsed_key, parsed_content));
     }
 
     Ok(output)

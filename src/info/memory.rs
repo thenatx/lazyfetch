@@ -5,8 +5,8 @@ use sysinfo::System;
 
 const DEFAULT_UNIT: &str = "Mib";
 const BYTES_IN_KILOBYTES: u64 = 1024;
-const BYTES_IN_MEGABYTES: u64 = 1000000;
-const BYTES_IN_GIGABYTES: u64 = 1000000000;
+const BYTES_IN_MEGABYTES: u64 = 1_000_000;
+const BYTES_IN_GIGABYTES: u64 = 1_000_000_000;
 
 pub struct MemoryVar;
 

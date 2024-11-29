@@ -5,7 +5,7 @@ use unicode_width::UnicodeWidthStr;
 
 use crate::error::LazyfetchError;
 
-pub fn make_columns(left: Vec<String>, right: Vec<String>) -> Result<String, LazyfetchError> {
+pub fn make_columns(left: &[String], right: &[String]) -> Result<String, LazyfetchError> {
     let max_left_length = left
         .iter()
         .map(|line| UnicodeWidthStr::width(strip_ansi_codes(line).unwrap().as_str()))
@@ -14,7 +14,7 @@ pub fn make_columns(left: Vec<String>, right: Vec<String>) -> Result<String, Laz
 
     let mut output = String::new();
     let padding = max_left_length + 4;
-    let empty_string = "".to_string();
+    let empty_string = String::new();
     let total_lines = std::cmp::max(left.len(), right.len());
     for i in 0..total_lines {
         let left_line = left.get(i).unwrap_or(&empty_string);
@@ -23,14 +23,16 @@ pub fn make_columns(left: Vec<String>, right: Vec<String>) -> Result<String, Laz
             " ".repeat(padding - UnicodeWidthStr::width(strip_ansi_codes(left_line)?.as_str()));
 
         let columned_line = format!("{}{}{}\n", left_line, padding_spaces, right_line);
-        output.push_str(&columned_line)
+        output.push_str(&columned_line);
     }
 
     Ok(output)
 }
 
 pub fn vectorize_string_file(text: &str) -> Vec<String> {
-    text.split('\n').map(|item| item.to_string()).collect()
+    text.split('\n')
+        .map(std::string::ToString::to_string)
+        .collect()
 }
 fn strip_ansi_codes(text: &str) -> Result<String, LazyfetchError> {
     let re = Regex::new(r"\x1b[\[\(][0-9;]*[A-Za-z~]")?;
@@ -52,13 +54,11 @@ pub fn parse_color(input: &str) -> Result<String, LazyfetchError> {
     let output = replace_regex_matches(&re, input, |c: &regex::Captures| {
         let color = &c[1];
         match colors.get(color) {
-            Some(v) => Ok(v.to_string()),
-            None => {
-                return Err(LazyfetchError::InvalidVar(
-                    color.to_string(),
-                    input.to_string(),
-                ))
-            }
+            Some(v) => Ok((*v).to_string()),
+            None => Err(LazyfetchError::InvalidVar(
+                color.to_string(),
+                input.to_string(),
+            )),
         }
     })?;
 

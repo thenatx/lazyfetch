@@ -11,9 +11,9 @@ static DISTRO_LIST: &[Distro] = &[Distro {
 
 pub fn get_ascii(os_name: &str) -> &'static str {
     for distro in DISTRO_LIST {
-      if distro.name == os_name.to_lowercase() {
-        return distro.ascii
-      }
+        if distro.name == os_name.to_lowercase() {
+            return distro.ascii;
+        }
     }
 
     LINUX_ASCII
