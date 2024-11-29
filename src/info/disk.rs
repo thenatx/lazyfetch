@@ -3,7 +3,7 @@ use crate::{config::DiskConfig, error::LazyfetchError};
 use super::ModuleVar;
 
 const DEFAULT_DISK: &str = "/";
-const BYTES_IN_GIGABYTES: u64 = 1000000000;
+const BYTES_IN_GIGABYTES: u64 = 1_000_000_000;
 
 // TODO: refactor this function and implement "subtitle" config option
 pub struct DiskVar;
@@ -15,17 +15,13 @@ impl ModuleVar<DiskConfig> for DiskVar {
 
     fn value(self, cfg: Option<&DiskConfig>) -> Result<String, LazyfetchError> {
         let config = cfg.unwrap();
-        let mut show_disk: &str = &config.show_disk.clone().unwrap_or(DEFAULT_DISK.to_string());
-
-        if show_disk.is_empty() {
-            show_disk = DEFAULT_DISK;
-        }
+        let show_disk: &str = &config.show_disk.clone().unwrap_or(DEFAULT_DISK.to_string());
 
         let disks = sysinfo::Disks::new_with_refreshed_list();
 
-        let mut disk_info: DiskStruct = DiskStruct::new("".to_string(), 0, 0);
+        let mut disk_info: DiskStruct = DiskStruct::new(String::new(), 0, 0);
         for disk in &disks {
-            let mount_point = disk.mount_point().to_str().unwrap();
+            let mount_point = disk.mount_point().to_str().unwrap_or_default();
             if show_disk != mount_point {
                 break;
             }
@@ -34,12 +30,12 @@ impl ModuleVar<DiskConfig> for DiskVar {
                 mount_point.to_string(),
                 disk.total_space() / BYTES_IN_GIGABYTES,
                 disk.available_space() / BYTES_IN_GIGABYTES,
-            )
+            );
         }
 
         if disk_info.mount_point.is_empty() {
             eprintln!("Error: the mount point is empty");
-            panic!()
+            std::process::exit(1)
         }
 
         let used_space = disk_info.total_space - disk_info.aviable_space;

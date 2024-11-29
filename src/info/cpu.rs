@@ -33,16 +33,16 @@ impl ModuleVar<CpuConfig> for CpuVar {
                 .clone()
                 .unwrap_or("bios_limit".to_string());
             let cpu_freq = fs::read_to_string(format!("{}{}", CPU_FREQ_BASE_DIR, speed_type))?
-                .replace("\n", "")
+                .replace('\n', "")
                 .parse::<f32>()
-                .unwrap()
-                / 1000000.0;
+                .map_err(|e| LazyfetchError::Custom(e.to_string()))?
+                / 1_000_000.0;
 
             return Ok(format!("{} @ {}GHz", cpu_brand, cpu_freq));
         }
 
         if !config.show_brand.unwrap_or(true) && !config.show_speed.unwrap_or(true) {
-            eprintln!("Why you want this void?\n show speed and show brand options are disabled");
+            println!("Why you want this void?\n show speed and show brand options are disabled");
             std::process::exit(1)
         }
 

@@ -32,9 +32,8 @@ fn parse_colors(content: &str) -> Result<String, LazyfetchError> {
                     ));
                 }
 
-                &Hex::add_color(Some(other)).map_err(|e| match e {
-                    _ => LazyfetchError::InvalidVar(m.to_string(), content.to_string()),
-                })?
+                &Hex::add_color(Some(other))
+                    .map_err(|_| LazyfetchError::InvalidVar(m.to_string(), content.to_string()))?
             }
         };
 
@@ -69,6 +68,7 @@ impl ColorVar for Hex {
 }
 
 impl Hex {
+    #[allow(clippy::cast_possible_truncation)]
     fn short_hex_to_rgb(hex: std::str::Chars) -> Result<termion::color::Rgb, LazyfetchError> {
         let rgb: Vec<u8> = hex
             .map(|h| {
@@ -84,15 +84,15 @@ impl Hex {
     }
 
     fn full_hex_to_rgb(hex: &str) -> Result<termion::color::Rgb, LazyfetchError> {
-        let mut hex_bytes = hex.bytes();
-        hex_bytes.next().unwrap();
-
         fn parse_hex_double(bytes: &mut core::str::Bytes) -> Result<u8, LazyfetchError> {
             let group = [bytes.next().unwrap(), bytes.next().unwrap()];
             let s = core::str::from_utf8(&group).unwrap();
 
             Ok(u8::from_str_radix(s, 16)?)
         }
+
+        let mut hex_bytes = hex.bytes();
+        hex_bytes.next().unwrap();
 
         let r = parse_hex_double(&mut hex_bytes)?;
         let g = parse_hex_double(&mut hex_bytes)?;
