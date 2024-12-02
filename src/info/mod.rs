@@ -2,7 +2,7 @@ use starbase_shell::ShellType;
 use std::collections::HashMap;
 use std::process::{Command, Stdio};
 
-use crate::config::ConfigFile;
+use crate::config::file::ConfigFile;
 use crate::error::LazyfetchError;
 
 type ModuleVars<'a> = HashMap<String, Box<dyn Fn() -> Result<String, LazyfetchError> + 'a>>;
@@ -13,13 +13,11 @@ trait ModuleVar<T> {
     fn value(self, cfg: Option<&T>) -> Result<String, LazyfetchError>;
 }
 
-pub fn get_info_lines(config: &ConfigFile) -> Result<Vec<String>, LazyfetchError> {
-    let separator = config.output.separator.clone().unwrap_or_default();
+pub fn get_info_lines(config: ConfigFile) -> Result<Vec<String>, LazyfetchError> {
+    let separator = config.output.separator.clone().unwrap_or(" - ".to_string());
     let modules = &config.output.format;
-
+    let vars = vars::init_vars(&config);
     let mut output: Vec<String> = Vec::new();
-    let vars = vars::init_vars(config);
-
     for module in modules {
         if module.content.is_empty() {
             let parsed_key = parse::parse_vars(&vars, &module.key)?;

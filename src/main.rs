@@ -11,7 +11,7 @@ use error::LazyfetchError;
 
 fn main() -> Result<(), LazyfetchError> {
     let (cli, config) = config::get_config();
-    let system_info = info::get_info_lines(&config)?;
+    let system_info = info::get_info_lines(config)?;
 
     let ascii_lines = if let Some(distro) = cli.distro {
         utils::vectorize_string_file(assets::get_ascii(&distro))

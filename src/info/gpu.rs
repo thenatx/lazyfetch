@@ -1,4 +1,4 @@
-use crate::config::GpuConfig;
+use crate::config::file::GpuConfig;
 use regex::Regex;
 use std::process::Command;
 

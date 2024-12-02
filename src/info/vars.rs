@@ -1,6 +1,6 @@
 use super::{cpu, disk, gpu, host, memory, os, uptime, username};
 use super::{ModuleVar, ModuleVars};
-use crate::config::ConfigFile;
+use crate::config::file::ConfigFile;
 use std::collections::HashMap;
 
 macro_rules! insert_var {

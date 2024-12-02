@@ -1,5 +1,5 @@
 use super::ModuleVar;
-use crate::{config::MemoryConfig, error::LazyfetchError};
+use crate::{config::file::MemoryConfig, error::LazyfetchError};
 use std::borrow::Cow;
 use sysinfo::System;
 

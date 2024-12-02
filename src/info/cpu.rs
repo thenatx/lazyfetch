@@ -1,4 +1,4 @@
-use crate::{config::CpuConfig, error::LazyfetchError};
+use crate::{config::file::CpuConfig, error::LazyfetchError};
 
 use sysinfo::System;
 

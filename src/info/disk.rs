@@ -1,4 +1,4 @@
-use crate::{config::DiskConfig, error::LazyfetchError};
+use crate::{config::file::DiskConfig, error::LazyfetchError};
 
 use super::ModuleVar;
 

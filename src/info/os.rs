@@ -1,5 +1,5 @@
 use super::ModuleVar;
-use crate::{config::OsConfig, error::LazyfetchError};
+use crate::{config::file::OsConfig, error::LazyfetchError};
 
 pub struct OsVar;
 
