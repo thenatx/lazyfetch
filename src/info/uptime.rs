@@ -1,4 +1,4 @@
-use crate::{config::UptimeConfig, error::LazyfetchError};
+use crate::{config::file::UptimeConfig, error::LazyfetchError};
 use sysinfo::System;
 
 use super::ModuleVar;
