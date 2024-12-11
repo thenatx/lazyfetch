@@ -72,6 +72,7 @@ mod cpu;
 mod disk;
 mod gpu;
 mod host;
+mod kernel;
 mod memory;
 mod os;
 mod parse;
