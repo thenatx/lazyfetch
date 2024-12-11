@@ -1,5 +1,4 @@
 #![feature(never_type)]
-#![allow(clippy::regex_creation_in_loops)]
 mod assets;
 mod colors;
 mod config;
