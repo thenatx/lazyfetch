@@ -98,7 +98,7 @@ fn parse_pci_ids(id_list: &str) -> HashMap<String, Vendor> {
         }
     }
 
-    return vendors;
+    vendors
 }
 
 fn flat_gpu_name(gpu: (&str, &str)) -> (String, String) {
@@ -127,5 +127,5 @@ fn flat_gpu_name(gpu: (&str, &str)) -> (String, String) {
         _ => (gpu.0.to_string(), gpu.1.to_string()),
     };
 
-    return flated_name;
+    flated_name
 }
