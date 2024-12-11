@@ -76,6 +76,7 @@ mod kernel;
 mod memory;
 mod os;
 mod parse;
+mod shell;
 mod uptime;
 mod username;
 mod vars;
