@@ -90,7 +90,7 @@ fn parse_pci_ids(id_list: &str) -> HashMap<String, Vendor> {
         }
 
         let device_data = line.split_once(' ').unwrap();
-        if let Some(vendor) = vendors.get_mut(&mut vendor_id.to_string()) {
+        if let Some(vendor) = vendors.get_mut(vendor_id) {
             vendor.devices.insert(
                 device_data.0.trim().to_string(),
                 device_data.1.trim().to_string(),
