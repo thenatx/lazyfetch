@@ -32,7 +32,7 @@ impl ModuleVar<GpuConfig> for GpuVar {
 
     // NOTE:
     // i only use an integrated AMD gpu, so the names of other vendors can be wrong formatted because are not tested at all
-    // If you have another gpu and see mesy/wrong output please open an issue with an image of the output and your gpu name
+    // If you have another gpu and see messy/wrong output please open an issue with an image of the output and your gpu name
     #[cfg(target_os = "linux")]
     fn value(self, cfg: Option<&GpuConfig>) -> Result<String, LazyfetchError> {
         let config = cfg.unwrap();
