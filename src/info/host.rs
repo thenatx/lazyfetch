@@ -40,7 +40,7 @@ impl ModuleVar<!> for HostVar {
         };
 
         Err(LazyfetchError::Custom(
-            "Error trying to get the host, of your system seems like you are on a unsupported one"
+            "Error trying to get the host of your system seems like you are on an unsupported one"
                 .to_string(),
         ))
     }
