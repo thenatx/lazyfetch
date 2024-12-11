@@ -1,4 +1,4 @@
-use super::{cpu, disk, gpu, host, memory, os, uptime, username};
+use super::{cpu, disk, gpu, host, kernel, memory, os, uptime, username};
 use super::{ModuleVar, ModuleVars};
 use crate::config::file::ConfigFile;
 use std::collections::HashMap;
@@ -21,6 +21,7 @@ pub fn init_vars<'a>(config: &'a ConfigFile) -> ModuleVars<'a> {
     insert_var!(vars, username::UserNameVar);
     insert_var!(vars, host::HostNameVar);
     insert_var!(vars, host::HostVar);
+    insert_var!(vars, kernel::Kernel);
     insert_var!(vars, memory::MemoryVar, config.memory.as_ref());
     insert_var!(vars, gpu::GpuVar, config.gpu.as_ref());
     insert_var!(vars, cpu::CpuVar, config.cpu.as_ref());
