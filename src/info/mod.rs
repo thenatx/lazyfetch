@@ -78,5 +78,6 @@ mod os;
 mod parse;
 mod shell;
 mod uptime;
+mod wm;
 mod username;
 mod vars;

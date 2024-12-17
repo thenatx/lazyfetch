@@ -29,12 +29,20 @@ pub struct ConfigFile<'a> {
 
     #[serde(rename = "disk")]
     pub disk: Option<DiskConfig>,
+
+    #[serde(rename = "wm")]
+    pub wm: Option<WindowManagerConfig>,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct Output {
     pub separator: Option<String>,
     pub format: Vec<Module>,
+}
+
+#[derive(Serialize, Deserialize, Default, Clone, Debug)]
+pub struct WindowManagerConfig {
+    pub show_backend: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
