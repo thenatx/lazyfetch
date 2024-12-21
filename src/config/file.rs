@@ -90,7 +90,6 @@ pub struct GpuConfig {
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct DiskConfig {
     pub show_disk: Option<String>,
-    pub subtitle: Option<String>,
     pub show_percent: Option<bool>,
 }
 
