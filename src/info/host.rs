@@ -23,7 +23,6 @@ impl ModuleVar<!> for HostVar {
         String::from("host")
     }
     fn value(self, _cfg: Option<&!>) -> Result<String, LazyfetchError> {
-        // TODO: Support other systems that aren't GNU/linux based
         if let Ok(family) = fs::read_to_string("/sys/devices/virtual/dmi/id/product_family") {
             return Ok(delete_end_extraspace(family));
         };

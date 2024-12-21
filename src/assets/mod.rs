@@ -1,3 +1,5 @@
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+
 struct Distro {
     name: &'static str,
     ascii: &'static str,
@@ -10,11 +12,12 @@ static DISTRO_LIST: &[Distro] = &[Distro {
 }];
 
 pub fn get_ascii(os_name: &str) -> &'static str {
-    for distro in DISTRO_LIST {
-        if distro.name == os_name.to_lowercase() {
-            return distro.ascii;
-        }
-    }
+    let distro = DISTRO_LIST
+        .par_iter()
+        .find_any(|distro| distro.name == os_name.to_lowercase());
 
-    LINUX_ASCII
+    match distro {
+        Some(d) => d.ascii,
+        None => LINUX_ASCII,
+    }
 }

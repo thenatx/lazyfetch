@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use regex::Regex;
 use std::collections::HashMap;
 use termion::color;
@@ -7,7 +8,7 @@ use crate::error::LazyfetchError;
 
 pub fn make_columns(left: &[String], right: &[String]) -> Result<String, LazyfetchError> {
     let max_left_length = left
-        .iter()
+        .par_iter()
         .map(|line| UnicodeWidthStr::width(strip_ansi_codes(line).unwrap().as_str()))
         .max()
         .unwrap();

@@ -1,4 +1,5 @@
 use crate::{config::file::DiskConfig, error::LazyfetchError};
+use rayon::prelude::*;
 
 use super::ModuleVar;
 
@@ -19,19 +20,22 @@ impl ModuleVar<DiskConfig> for DiskVar {
 
         let disks = sysinfo::Disks::new_with_refreshed_list();
 
-        let mut disk_info: DiskStruct = DiskStruct::new(String::new(), 0, 0);
-        for disk in &disks {
+        let disk_info = std::sync::Mutex::new(DiskStruct::default());
+        disks.par_iter().for_each(|disk| {
             let mount_point = disk.mount_point().to_str().unwrap_or_default();
             if show_disk != mount_point {
-                break;
+                return;
             }
 
-            disk_info = DiskStruct::new(
+            let mut disk_info = disk_info.lock().unwrap();
+            *disk_info = DiskStruct::new(
                 mount_point.to_string(),
                 disk.total_space() / BYTES_IN_GIGABYTES,
                 disk.available_space() / BYTES_IN_GIGABYTES,
             );
-        }
+        });
+
+        let disk_info = disk_info.lock().unwrap();
 
         if disk_info.mount_point.is_empty() {
             eprintln!("Error: the mount point is empty");
@@ -52,6 +56,7 @@ impl ModuleVar<DiskConfig> for DiskVar {
     }
 }
 
+#[derive(Debug, Default)]
 struct DiskStruct {
     mount_point: String,
     total_space: u64,

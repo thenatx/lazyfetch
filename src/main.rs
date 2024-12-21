@@ -7,6 +7,7 @@ mod error;
 mod info;
 mod utils;
 
+use rayon::prelude::*;
 use error::LazyfetchError;
 
 fn main() -> Result<(), LazyfetchError> {
@@ -21,7 +22,7 @@ fn main() -> Result<(), LazyfetchError> {
     };
 
     let ascii: Vec<String> = ascii_lines
-        .iter()
+        .par_iter()
         .map(|line| utils::parse_color(line))
         .collect::<Result<Vec<_>, LazyfetchError>>()?;
 
